@@ -142,7 +142,6 @@ const init = () => {
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
-    let graphType = (graphValue == "linear" ? "linear" : "logarithmic");
 
     let rows = gData.transition[code];
     let latestValue = rows[rows.length - 1][3];
@@ -225,7 +224,7 @@ const init = () => {
     };
 
     // set graph type
-    config.options.scales.yAxes[0].type = graphType;
+    config.options.scales.yAxes[0].type = graphValue;
 
     if ($box.width() >= 400) {
       config.options.aspectRatio = 2.0;
@@ -531,7 +530,6 @@ const init = () => {
     let $canvas = $wrapper.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
-    let graphType = (graphValue == "linear" ? "linear" : "logarithmic");
 
     let rows = gData["prefectures-data"][typeCode];
     let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
@@ -613,7 +611,7 @@ const init = () => {
     };
 
     // set graph type
-    config.options.scales.yAxes[0].type = graphType;
+    config.options.scales.yAxes[0].type = graphValue;
 
     if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 2.0;
 
@@ -733,3 +731,4 @@ const init = () => {
 $(function(){
   init();
 });
+
