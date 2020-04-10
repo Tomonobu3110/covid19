@@ -544,6 +544,7 @@ const init = () => {
       },
       options: {
         aspectRatio: 1.6,
+        animation: false,
 //      animation: {
 //        duration: 1000
 //      },
