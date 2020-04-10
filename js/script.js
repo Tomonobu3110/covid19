@@ -544,9 +544,9 @@ const init = () => {
       },
       options: {
         aspectRatio: 1.6,
-        animation: {
-          duration: 1000
-        },
+//      animation: {
+//        duration: 1000
+//      },
         responsive: true,
         legend: {
           display: false
