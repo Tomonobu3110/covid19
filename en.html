@@ -12,7 +12,7 @@
 		<meta name="twitter:card" content="summary_large_image" />
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP|Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.min.css"/>
-		<title>Coronavirus Disease (COVID-19) Situation Report in Japan</title>
+		<title>Coronavirus Disease (COVID-19) Situation Report in Japan (log graph clone)</title>
     <script src="https://tk.ismcdn.jp/sp/js/td_sdk.js" type="text/javascript" async></script>
     <script type="text/javascript">var _gaq=_gaq||[];_gaq.push(['_setAccount','UA-6066080-9']);_gaq.push(['_setDomainName','toyokeizai.net']);_gaq.push(['_trackPageview']);(function(){var ga=document.createElement('script');ga.type='text/javascript';ga.async=true;ga.src=('https:'==document.location.protocol?'https://ssl':'http://www')+'.google-analytics.com/ga.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(ga,s);})();</script>
     <script>
@@ -190,6 +190,57 @@
               <p class="notes">Confirmed number of "Status of hospitalization and discharge > Death" in MHLW publication. Dates are based on reports from each prefecture.<a class="more">READ MORE</a></p>
             </div>
           </div>
+
+          <!-- 倍加時間グラフ ここから -->
+          <div class="flex-row">
+            <div class="box doubling" code="carriers">
+              <h3>Doubling time of Tested Positive</h3>
+              <div class="latest">
+                <div>
+                  <span class="value"></span>
+                  <span class="unit"></span>
+                </div>
+                <div class="change"></div>
+              </div>
+              <h5 class="updated-transition"><br /></h5>
+              <div class="chart"></div>
+              <p class="notes">(under construction)<a class="more">READ MORE</a></p>
+            </div>
+          </div>
+
+          <div class="flex-row">
+            <div class="box doubling" code="serious">
+              <h3>Doubling time of Serious</h3>
+              <div class="latest">
+                <div>
+                  <span class="value"></span>
+                  <span class="unit"></span>
+                </div>
+                <div class="change"></div>
+              </div>
+              <h5 class="updated-transition"><br /></h5>
+              <div class="chart"></div>
+              <p class="notes">(under construction)<a class="more">READ MORE</a></p>
+            </div>
+          </div>
+
+          <div class="flex-row">
+            <div class="box doubling" code="deaths">
+              <h3>Doubling time of Deaths</h3>
+              <div class="latest">
+                <div>
+                  <span class="value"></span>
+                  <span class="unit"></span>
+                </div>
+                <div class="change"></div>
+              </div>
+              <h5 class="updated-transition"><br /></h5>
+              <div class="chart"></div>
+              <p class="notes">(under construction)<a class="more">READ MORE</a></p>
+            </div>
+          </div>
+          <!-- 倍加時間グラフ ここまで -->
+
           <div class="flex-row">
             <div class="box" id="demography-box">
               <h3>By Age</h3>

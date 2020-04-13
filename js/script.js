@@ -33,7 +33,8 @@ const LABELS = {
       discharged: "名",
       pcrtested: "名",
       serious: "名",
-      deaths: "名"
+      deaths: "名",
+      doubling: "日"
     },
     demography: {
       deaths: "死亡",
@@ -65,7 +66,8 @@ const LABELS = {
       discharged: "",
       pcrtested: "",
       serious: "",
-      deaths: ""
+      deaths: "",
+      doubling: "days"
     },
     demography: {
       deaths: "Deaths",
@@ -131,9 +133,16 @@ const init = () => {
   }
 
   const drawTransitionBoxes = () => {
+    // draw transition graph
     $(".transition").each(function(){
       let code = $(this).attr("code");
       drawTransitionChart($(this), code);
+    });
+
+    // draw doubling graph
+    $(".doubling").each(function(){
+      let code = $(this).attr("code");
+      drawDoublingChart($(this), code);
     });
   }
 
@@ -240,6 +249,150 @@ const init = () => {
         config.data.datasets[0].data.push(row[3] - prev[3]);
       }
     });
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
+  //
+  // Draw Doubling Chart
+  //
+  const drawDoublingChart = ($box, code) => {
+
+//  console.log("[drawDoublingChart] " + code);
+
+    let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+    let $canvas = $chart.find("canvas")[0];
+    let switchValue = "total";
+    let graphValue = "linear";
+//    let switchValue = $box.find(".switch.selected").attr("value");
+//    let graphValue = $box.find(".graph.switch.selected").attr("value");
+
+    // "transition":{"carriers":[[2020,2,17,46],[2020,2,18,53], ... ,[2020,4,12,63132]]}
+    let rows = gData.transition[code];
+
+    let config = {
+//      type: "bar",
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: $box.find("h3:first").text(),
+          fill: false,
+          lineTension: 0.1,
+          borderColor: COLORS.selected,
+//        backgroundColor: COLORS[code],
+          borderWidth: 4,
+          pointRadius: 2,
+          pointBorderWidth: 1,
+          pointBackgroundColor: "#242a3c",
+          data: []
+        }]
+      },
+      options: {
+        aspectRatio: 1.6,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              let dateTime = tooltipItem[0].xLabel + " " + "12:00";
+              if (LANG === "ja") dateTime = dateTime + "時点";
+              if (LANG === "en") dateTime = "As of " + dateTime;
+              //let suffix = $box.find(".switch.selected").text();
+              let suffix = "";
+              return dateTime + " " + suffix;
+            },
+            label: function(tooltipItem, data){
+              let ret = data.datasets[0].label + ": " + addCommas(data.datasets[0].data[tooltipItem.index]) + " " + LABELS[LANG].unit["doubling"];
+              return ret;
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            stacked: false,
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "linear",
+            location: "bottom",
+            stacked: false,
+            gridLines: {
+              display: true,
+              zeroLineColor: "rgba(255,255,255,0.7)",
+              color: "rgba(255, 255, 255, 0.3)"
+            },
+            ticks: {
+              beginAtZero: true,
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    // set graph type
+    config.options.scales.yAxes[0].type = graphValue;
+
+    if ($box.width() >= 400) {
+      config.options.aspectRatio = 2.0;
+    }
+
+    let latestValue = 0;
+    let prevValue = 0;
+    rows.forEach(function(row, i){
+      config.data.labels.push(row[1] + "/" + row[2]);
+      if (switchValue === "total") {
+        let hc = row[3] / 2;
+        let pi = i - 1;
+        while (0 < pi && hc < rows[pi][3]) {
+//        console.log("i:" + i + " hc:" + hc + " pi:" + pi + " pic:" + rows[pi][3]);
+          pi--;
+        }
+        prevValue = latestValue;
+        latestValue = (0 < pi || rows[0][3] <= hc) ? (i - pi) : 0;
+        config.data.datasets[0].data.push(latestValue);
+
+//      console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
+      } else if (i >= 1) {
+        let prev = rows[i - 1];
+        config.data.datasets[0].data.push(row[3] - prev[3]);
+      }
+    });
+
+    // latest
+    let $latest = $box.find(".latest");
+    $latest.find(".value").text(addCommas(latestValue));
+    $latest.find(".unit").text(LABELS[LANG].unit["doubling"]);
+
+    // latest change
+    let latestChange = addCommas(latestValue - prevValue).toString();
+    if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+    $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -516,9 +669,17 @@ const init = () => {
 
   const drawPrefectureCharts = (prefCode) => {
     $("#select-prefecture").val(prefCode);
+
+    // draw transition charts
     $(".prefecture-chart").each(function(){
       let code = $(this).attr("code");
       drawPrefectureChart(prefCode, code);
+    });
+
+    // draw doubling charts
+    $(".pref-doubling").each(function(){
+      let code = $(this).attr("code");
+      drawPrefDoublingChart(prefCode, code);
     });
   }
 
@@ -661,6 +822,162 @@ const init = () => {
         }
       }
     });
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
+  const drawPrefDoublingChart = (prefCode, typeCode) => {
+    let $box = $(".pref-doubling[code=" + typeCode + "]");
+    $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
+
+    let $wrapper = $box.find(".chart").empty().html('<canvas></canvas>');
+    let $canvas = $wrapper.find("canvas")[0];
+//  let switchValue = $box.find(".switch.selected").attr("value");
+//  let graphValue = $box.find(".graph.switch.selected").attr("value");
+
+    let rows = gData["prefectures-data"][typeCode];
+
+//  let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
+//  let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
+//  drawLatestValue($box, latestValue, latestChange);
+
+    let config = {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        aspectRatio: 1.6,
+        animation: false,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          mode: 'x',
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              if (tooltipItem[0].datasetIndex === 0) {
+                return $box.find("h3").text();
+              }
+            },
+            label: function(tooltipItem, data){
+              if (tooltipItem.datasetIndex === 0) {
+                let suffix = {
+                  ja: " 日",
+                  en: " days"
+                };
+                return tooltipItem.xLabel + " " + tooltipItem.yLabel + suffix[LANG];
+              }
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            position: "bottom",
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              suggestedMin: 0,
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "linear",
+            gridLines: {
+              color: "rgba(255,255,255,0.2)"
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 2.0;
+
+    config.data.datasets.push({
+      fill: false,
+      lineTension: 0.1,
+      borderColor: COLORS.selected,
+      borderWidth: 4,
+      pointRadius: 2,
+      pointBorderWidth: 1,
+      pointBackgroundColor: "#242a3c",
+      data: []
+    });
+
+    for (let i = 1; i <= 46; i++) {
+      config.data.datasets.push({
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "#267",
+        borderWidth: 1,
+        pointRadius: 0,
+        data: []
+      });
+    }
+
+    let latestValue = 0;
+    let prevValue = 0;
+    rows.forEach(function(row, i){
+      config.data.labels.push(row[1] + "/" + row[2]);
+
+      // calc
+      let j = 1;
+      for (let p = 1; p <= 47; ++p) {
+        let hc = row[p + 2] / 2;
+        let pi = i - 1;
+        while (0 < pi && hc < rows[pi][p + 2]) {
+          pi--;
+        }
+
+        // selected prefecture
+        if (p == parseInt(prefCode)) {
+          prevValue = latestValue;
+          latestValue = (0 < hc && (0 < pi || rows[0][p + 2] <= hc)) ? (i - pi) : 0;
+          config.data.datasets[0].data.push(latestValue);
+        }
+
+        // other prefectures
+        else {
+          let v = (0 < hc && (0 < pi || rows[0][p + 2] <= hc)) ? (i - pi) : 0;
+          config.data.datasets[j].data.push(v);
+          ++j;
+        }
+      }
+
+    });
+
+    // latest
+    let $latest = $box.find(".latest");
+    $latest.find(".value").text(addCommas(latestValue));
+    $latest.find(".unit").text(LABELS[LANG].unit["doubling"]);
+
+    // latest change
+    let latestChange = addCommas(latestValue - prevValue).toString();
+    if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+    $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
