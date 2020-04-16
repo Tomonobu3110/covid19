@@ -7,6 +7,12 @@ let gThresholds = {
   pcrtested: 0
 };
 
+let gLocalGov = {
+  "prefectures-data": {
+    deaths: []
+  }
+};
+
 const LANG = $("html").attr("lang");
 const COLORS = {
   default: "#3DC",
@@ -681,6 +687,12 @@ const init = () => {
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
     });
+
+    // draw trangision charts (data from local goverment)
+    $(".prefecture-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawPrefectureLocalGov(prefCode, code);
+    });
   }
 
   const drawPrefectureChart = (prefCode, typeCode) => {
@@ -983,6 +995,151 @@ const init = () => {
     window.myChart = new Chart(ctx, config);
   }
 
+  // Prefecture Transition chart (data from each local goverment)
+  const drawPrefectureLocalGov = (prefCode, typeCode) => {
+    let $box = $(".prefecture-localgov[code=" + typeCode + "]");
+    $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
+
+    let $wrapper = $box.find(".chart").empty().html('<canvas></canvas>');
+    let $canvas = $wrapper.find("canvas")[0];
+    let switchValue = $box.find(".switch.selected").attr("value");
+    let graphValue = $box.find(".graph.switch.selected").attr("value");
+
+    let rows = gLocalGov["prefectures-data"][typeCode];
+    let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
+    let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
+    drawLatestValue($box, latestValue, latestChange);
+
+    let config = {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        aspectRatio: 1.6,
+        animation: false,
+//      animation: {
+//        duration: 1000
+//      },
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          mode: 'x',
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              if (tooltipItem[0].datasetIndex === 0) {
+                return $box.find("h3").text();
+              }
+            },
+            label: function(tooltipItem, data){
+              if (tooltipItem.datasetIndex === 0) {
+                let suffix = {
+                  ja: " 名",
+                  en: " cases"
+                };
+                return tooltipItem.xLabel + " " + tooltipItem.yLabel + suffix[LANG];
+              }
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            position: "bottom",
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              suggestedMin: 0,
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "logarithmic",
+            gridLines: {
+              color: "rgba(255,255,255,0.2)"
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    // set graph type
+    config.options.scales.yAxes[0].type = graphValue;
+
+    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 2.0;
+
+    config.data.datasets.push({
+      fill: false,
+      lineTension: 0.1,
+      borderColor: COLORS.selected,
+      borderWidth: 4,
+      pointRadius: 2,
+      pointBorderWidth: 1,
+      pointBackgroundColor: "#242a3c",
+      data: []
+    });
+
+    for (let i = 1; i <= 46; i++) {
+      config.data.datasets.push({
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "#267",
+        borderWidth: 1,
+        pointRadius: 0,
+        data: []
+      });
+    }
+
+    rows.forEach(function(row, i){
+      if (switchValue === "total") {
+        config.data.labels.push(row[1] + "/" + row[2]);
+        config.data.datasets[0].data.push(row[parseInt(prefCode) + 2]);
+        for (let j = 1; j <= 46; j++) {
+          let k = (j >= parseInt(prefCode)) ? j + 1: j;
+          config.data.datasets[j].data.push(row[k + 2]);
+        }
+      } else {
+        if (i >= 1) {
+          config.data.labels.push(row[1] + "/" + row[2]);
+
+          let prev = rows[i - 1][parseInt(prefCode) + 2];
+          config.data.datasets[0].data.push(row[parseInt(prefCode) + 2] - prev);
+
+          for (let j = 1; j <= 46; j++) {
+            let k = (j >= parseInt(prefCode)) ? j + 1: j;
+            let prev = rows[i - 1][k + 2];
+            config.data.datasets[j].data.push(row[k + 2] - prev);
+          }
+        }
+      }
+    });
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
   const showUpdateDates = () => {
     ["last", "transition", "demography", "prefectures"].forEach(function(cls){
       $(".updated-" + cls).text(gData.updated[cls][LANG]);
@@ -1019,6 +1176,13 @@ const init = () => {
       drawPrefectureChart($("#select-prefecture").val(), $box.attr("code"));
     });
 
+    $(".prefecture-localgov").find(".switch").on("click",function(){
+      let $box = $(this).closest(".prefecture-localgov");
+      $(this).siblings(".switch").removeClass("selected");
+      $(this).addClass("selected");
+      drawPrefectureLocalGov($("#select-prefecture").val(), $box.attr("code"));
+    });
+
     $("#select-prefecture").on("change", function(){
       let prefCode = $(this).val();
       drawPrefectureCharts(prefCode);
@@ -1041,8 +1205,36 @@ const init = () => {
     });
   }
 
-  loadData();
+  // load the number of death by reported local goverment
+  const loadDataLocalGov = () => {
+    $.get("https://raw.githubusercontent.com/swsoyee/2019-ncov-japan/master/Data/death.csv",
+      (csv) => {
+        let sum   = Array(50).fill(0);
+        let table = csv.split("\n").slice(1).map((row) => row.split(','));
+        table.forEach((row, i) => {
+          let death_of_day = [];
+          death_of_day.push(row[0].substring(0, 4) - 0); // Year
+          death_of_day.push(row[0].substring(4, 6) - 0); // Mon
+          death_of_day.push(row[0].substring(6) - 0); // Day
+          row.slice(1, 48).forEach((data, j) => {
+            sum[j] += (data - 0);
+            death_of_day.push(sum[j]);
+          });
+
+          if (2 < death_of_day[1] || (2 == death_of_day[1] && 12 <= death_of_day[2])) {
+            gLocalGov["prefectures-data"].deaths.push(death_of_day);
+          }
+        });
+
+        loadData();
+      }
+    );
+  }
+
+  loadDataLocalGov();
+  // loadData();
   bindEvents();
+
 };
 
 

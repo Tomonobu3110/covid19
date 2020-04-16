@@ -198,6 +198,7 @@ html, body {
       line-height: 24px;
       margin-top: 16px;
       color: rgba(255, 255, 255, 0.7); }
+  #container #main-block .prefecture-localgov .latest,
   #container #main-block .pref-doubling .latest,
   #container #main-block .doubling .latest,
   #container #main-block .transition .latest,
@@ -205,24 +206,30 @@ html, body {
     position: absolute;
     top: 8px;
     right: 16px; }
+    #container #main-block .prefecture-localgov .latest .value,
     #container #main-block .pref-doubling .latest .value,
     #container #main-block .doubling .latest .value,
     #container #main-block .transition .latest .value,
     #container #main-block .prefecture-chart .latest .value {
       font-size: 20px; }
       @media only screen and (min-width: 400px) {
+        #container #main-block .prefecture-localgov .latest .value,
         #container #main-block .pref-doubling .latest .value,
         #container #main-block .doubling .latest .value,
         #container #main-block .transition .latest .value,
         #container #main-block .prefecture-chart .latest .value {
           font-size: 22px; } }
       @media only screen and (min-width: 640px) {
+        #container #main-block .prefecture-localgov .latest .value,
         #container #main-block .pref-doubling .latest .value,
         #container #main-block .doubling .latest .value,
         #container #main-block .transition .latest .value,
         #container #main-block .prefecture-chart .latest .value {
           font-size: 24px; } }
-    #container #main-block .pref-doubling .latest .type, #container #main-block .pref-doubling .latest .unit, #container #main-block .pref-doubling .latest .change,
+    #container #main-block .prefecture-localgov .latest .type, #container #main-block .prefecture-localgov .latest .unit, #container #main-block .prefecture-localgov .latest .change,
+    #container #main-block .pref-doubling .latest .type,
+    #container #main-block .pref-doubling .latest .unit,
+    #container #main-block .pref-doubling .latest .change,
     #container #main-block .doubling .latest .type,
     #container #main-block .doubling .latest .unit,
     #container #main-block .doubling .latest .change,
@@ -234,11 +241,13 @@ html, body {
     #container #main-block .prefecture-chart .latest .change {
       font-size: 13px;
       color: #ccc; }
+    #container #main-block .prefecture-localgov .latest .change,
     #container #main-block .pref-doubling .latest .change,
     #container #main-block .doubling .latest .change,
     #container #main-block .transition .latest .change,
     #container #main-block .prefecture-chart .latest .change {
       text-align: right; }
+  #container #main-block .prefecture-localgov p.notes,
   #container #main-block .pref-doubling p.notes,
   #container #main-block .doubling p.notes,
   #container #main-block .transition p.notes,
@@ -247,6 +256,7 @@ html, body {
     text-overflow: ellipsis;
     overflow: hidden;
     padding-right: 72px; }
+    #container #main-block .prefecture-localgov p.notes a.more,
     #container #main-block .pref-doubling p.notes a.more,
     #container #main-block .doubling p.notes a.more,
     #container #main-block .transition p.notes a.more,
@@ -257,17 +267,20 @@ html, body {
       right: 0;
       font-size: 13px;
       color: #ace; }
+      #container #main-block .prefecture-localgov p.notes a.more:hover,
       #container #main-block .pref-doubling p.notes a.more:hover,
       #container #main-block .doubling p.notes a.more:hover,
       #container #main-block .transition p.notes a.more:hover,
       #container #main-block .prefecture-chart p.notes a.more:hover {
         cursor: pointer; }
+    #container #main-block .prefecture-localgov p.notes.show,
     #container #main-block .pref-doubling p.notes.show,
     #container #main-block .doubling p.notes.show,
     #container #main-block .transition p.notes.show,
     #container #main-block .prefecture-chart p.notes.show {
       white-space: inherit;
       padding-right: 0; }
+      #container #main-block .prefecture-localgov p.notes.show a.more,
       #container #main-block .pref-doubling p.notes.show a.more,
       #container #main-block .doubling p.notes.show a.more,
       #container #main-block .transition p.notes.show a.more,
