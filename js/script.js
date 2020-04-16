@@ -688,10 +688,16 @@ const init = () => {
       drawPrefDoublingChart(prefCode, code);
     });
 
-    // draw trangision charts (data from local goverment)
+    // draw trangision charts (data from local goverments)
     $(".prefecture-localgov").each(function(){
       let code = $(this).attr("code");
       drawPrefectureLocalGov(prefCode, code);
+    });
+
+    // draw doubling charts (data from local goverments)
+    $(".pref-doubling-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawPrefDoublingLocalGov(prefCode, code);
     });
   }
 
@@ -718,9 +724,6 @@ const init = () => {
       options: {
         aspectRatio: 1.6,
         animation: false,
-//      animation: {
-//        duration: 1000
-//      },
         responsive: true,
         legend: {
           display: false
@@ -845,14 +848,8 @@ const init = () => {
 
     let $wrapper = $box.find(".chart").empty().html('<canvas></canvas>');
     let $canvas = $wrapper.find("canvas")[0];
-//  let switchValue = $box.find(".switch.selected").attr("value");
-//  let graphValue = $box.find(".graph.switch.selected").attr("value");
 
     let rows = gData["prefectures-data"][typeCode];
-
-//  let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
-//  let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
-//  drawLatestValue($box, latestValue, latestChange);
 
     let config = {
       type: "line",
@@ -1006,6 +1003,7 @@ const init = () => {
     let graphValue = $box.find(".graph.switch.selected").attr("value");
 
     let rows = gLocalGov["prefectures-data"][typeCode];
+
     let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
     let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
     drawLatestValue($box, latestValue, latestChange);
@@ -1019,9 +1017,6 @@ const init = () => {
       options: {
         aspectRatio: 1.6,
         animation: false,
-//      animation: {
-//        duration: 1000
-//      },
         responsive: true,
         legend: {
           display: false
@@ -1140,6 +1135,157 @@ const init = () => {
     window.myChart = new Chart(ctx, config);
   }
 
+  // draw doubling graph (data from local goverments)
+  const drawPrefDoublingLocalGov = (prefCode, typeCode) => {
+    let $box = $(".pref-doubling-localgov[code=" + typeCode + "]");
+    $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
+
+    let $wrapper = $box.find(".chart").empty().html('<canvas></canvas>');
+    let $canvas = $wrapper.find("canvas")[0];
+
+    let rows = gLocalGov["prefectures-data"][typeCode];
+
+    let config = {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        aspectRatio: 1.6,
+        animation: false,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          mode: 'x',
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              if (tooltipItem[0].datasetIndex === 0) {
+                return $box.find("h3").text();
+              }
+            },
+            label: function(tooltipItem, data){
+              if (tooltipItem.datasetIndex === 0) {
+                let suffix = {
+                  ja: " 日",
+                  en: " days"
+                };
+                return tooltipItem.xLabel + " " + tooltipItem.yLabel + suffix[LANG];
+              }
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            position: "bottom",
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              suggestedMin: 0,
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "linear",
+            gridLines: {
+              color: "rgba(255,255,255,0.2)"
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 2.0;
+
+    config.data.datasets.push({
+      fill: false,
+      lineTension: 0.1,
+      borderColor: COLORS.selected,
+      borderWidth: 4,
+      pointRadius: 2,
+      pointBorderWidth: 1,
+      pointBackgroundColor: "#242a3c",
+      data: []
+    });
+
+    for (let i = 1; i <= 46; i++) {
+      config.data.datasets.push({
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "#267",
+        borderWidth: 1,
+        pointRadius: 0,
+        data: []
+      });
+    }
+
+    let latestValue = 0;
+    let prevValue = 0;
+    rows.forEach(function(row, i){
+      config.data.labels.push(row[1] + "/" + row[2]);
+
+      // calc
+      let j = 1;
+      for (let p = 1; p <= 47; ++p) {
+        let hc = row[p + 2] / 2;
+        let pi = i - 1;
+        while (0 < pi && hc < rows[pi][p + 2]) {
+          pi--;
+        }
+
+        // selected prefecture
+        if (p == parseInt(prefCode)) {
+          prevValue = latestValue;
+          latestValue = (0 < hc && (0 < pi || rows[0][p + 2] <= hc)) ? (i - pi) : 0;
+          config.data.datasets[0].data.push(latestValue);
+        }
+
+        // other prefectures
+        else {
+          let v = (0 < hc && (0 < pi || rows[0][p + 2] <= hc)) ? (i - pi) : 0;
+          config.data.datasets[j].data.push(v);
+          ++j;
+        }
+      }
+
+    });
+
+    // latest
+    let $latest = $box.find(".latest");
+    $latest.find(".value").text(addCommas(latestValue));
+    $latest.find(".unit").text(LABELS[LANG].unit["doubling"]);
+
+    // latest change
+    let latestChange = addCommas(latestValue - prevValue).toString();
+    if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+    $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
   const showUpdateDates = () => {
     ["last", "transition", "demography", "prefectures"].forEach(function(cls){
       $(".updated-" + cls).text(gData.updated[cls][LANG]);
@@ -1220,7 +1366,7 @@ const init = () => {
             sum[j] += (data - 0);
             death_of_day.push(sum[j]);
           });
-
+          // Feb-12 or later
           if (2 < death_of_day[1] || (2 == death_of_day[1] && 12 <= death_of_day[2])) {
             gLocalGov["prefectures-data"].deaths.push(death_of_day);
           }
