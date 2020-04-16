@@ -446,6 +446,7 @@ const init = () => {
       onHover: function(data){
         drawRegionChart(data.code);
         drawPrefectureCharts(data.code);
+        drawPrefectureChartsLocalGov(data.code);
       }
     });
   }
@@ -686,18 +687,6 @@ const init = () => {
     $(".pref-doubling").each(function(){
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
-    });
-
-    // draw trangision charts (data from local goverments)
-    $(".prefecture-localgov").each(function(){
-      let code = $(this).attr("code");
-      drawPrefectureLocalGov(prefCode, code);
-    });
-
-    // draw doubling charts (data from local goverments)
-    $(".pref-doubling-localgov").each(function(){
-      let code = $(this).attr("code");
-      drawPrefDoublingLocalGov(prefCode, code);
     });
   }
 
@@ -990,6 +979,23 @@ const init = () => {
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
+  }
+
+  // draw charts of local goverments
+  const drawPrefectureChartsLocalGov = (prefCode) => {
+    $("#select-prefecture").val(prefCode);
+
+    // draw trangision charts (data from local goverments)
+    $(".prefecture-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawPrefectureLocalGov(prefCode, code);
+    });
+
+    // draw doubling charts (data from local goverments)
+    $(".pref-doubling-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawPrefDoublingLocalGov(prefCode, code);
+    });
   }
 
   // Prefecture Transition chart (data from each local goverment)
@@ -1304,6 +1310,9 @@ const init = () => {
       drawPrefectureCharts("13");
       showUpdateDates();
       $("#container").addClass("show");
+
+      // load and draw chart of local goverments
+      loadDataLocalGov();
     })
   }
 
@@ -1332,6 +1341,7 @@ const init = () => {
     $("#select-prefecture").on("change", function(){
       let prefCode = $(this).val();
       drawPrefectureCharts(prefCode);
+      drawPrefectureChartsLocalGov(prefCode);
     });
 
     $("#select-pref-type").on("change", function(){
@@ -1372,13 +1382,13 @@ const init = () => {
           }
         });
 
-        loadData();
+        // draw chars of local goverments
+        drawPrefectureChartsLocalGov("13");
       }
     );
   }
 
-  loadDataLocalGov();
-  // loadData();
+  loadData();
   bindEvents();
 
 };
