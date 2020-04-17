@@ -10,6 +10,9 @@ let gThresholds = {
 let gLocalGov = {
   "prefectures-data": {
     deaths: []
+  },
+  "transition": {
+    deaths: []
   }
 };
 
@@ -384,6 +387,269 @@ const init = () => {
         config.data.datasets[0].data.push(latestValue);
 
 //      console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
+      } else if (i >= 1) {
+        let prev = rows[i - 1];
+        config.data.datasets[0].data.push(row[3] - prev[3]);
+      }
+    });
+
+    // latest
+    let $latest = $box.find(".latest");
+    $latest.find(".value").text(addCommas(latestValue));
+    $latest.find(".unit").text(LABELS[LANG].unit["doubling"]);
+
+    // latest change
+    let latestChange = addCommas(latestValue - prevValue).toString();
+    if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+    $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
+  //
+  // draw graphs of local govement data
+  //
+  const drawTransitionBoxesLocalGov = () => {
+    // draw transition graph (local-gov)
+    $(".transition-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawTransitionLocalGov($(this), code);
+    });
+
+    // draw doubling graph (local-gov)
+    $(".doubling-localgov").each(function(){
+      let code = $(this).attr("code");
+      drawDoublingLocalGov($(this), code);
+    });
+  }
+
+  //
+  // draw transition graph (data from local goverment)
+  //
+  const drawTransitionLocalGov = ($box, code) => {
+    let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+    let $canvas = $chart.find("canvas")[0];
+    let switchValue = $box.find(".switch.selected").attr("value");
+    let graphValue = $box.find(".graph.switch.selected").attr("value");
+
+    let rows = gLocalGov.transition[code];
+
+    let latestValue = rows[rows.length - 1][3];
+    let latestChange = latestValue - rows[rows.length - 2][3];
+    drawLatestValue($box, latestValue, latestChange);
+
+    let config = {
+      type: "bar",
+      data: {
+        labels: [],
+        datasets: [{
+          label: $box.find("h3:first").text(),
+          backgroundColor: COLORS[code],
+          data: []
+        }]
+      },
+      options: {
+        aspectRatio: 1.6,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              let dateTime = tooltipItem[0].xLabel + " " + "12:00";
+              if (LANG === "ja") dateTime = dateTime + "時点";
+              if (LANG === "en") dateTime = "As of " + dateTime;
+              let suffix = $box.find(".switch.selected").text();
+              return dateTime + " " + suffix;
+            },
+            label: function(tooltipItem, data){
+              let ret = data.datasets[0].label + ": " + addCommas(data.datasets[0].data[tooltipItem.index]) + " " + LABELS[LANG].unit[code];
+              return ret;
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            stacked: false,
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "logarithmic",
+            location: "bottom",
+            stacked: false,
+            gridLines: {
+              display: true,
+              zeroLineColor: "rgba(255,255,255,0.7)",
+              color: "rgba(255, 255, 255, 0.3)"
+            },
+            ticks: {
+              beginAtZero: true,
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    // set graph type
+    config.options.scales.yAxes[0].type = graphValue;
+
+    if ($box.width() >= 400) {
+      config.options.aspectRatio = 2.0;
+    }
+
+    rows.forEach(function(row, i){
+      if (switchValue === "total") {
+        config.data.labels.push(row[1] + "/" + row[2]);
+        config.data.datasets[0].data.push(row[3]);
+      } else if (i >= 1) {
+        config.data.labels.push(row[1] + "/" + row[2]);
+        let prev = rows[i - 1];
+        config.data.datasets[0].data.push(row[3] - prev[3]);
+      }
+    });
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+
+  //
+  // Draw Doubling Chart (data from local goverment)
+  //
+  const drawDoublingLocalGov = ($box, code) => {
+    let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+    let $canvas = $chart.find("canvas")[0];
+    let switchValue = "total";
+    let graphValue = "linear";
+
+    let rows = gLocalGov.transition[code];
+
+    let config = {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: $box.find("h3:first").text(),
+          fill: false,
+          lineTension: 0.1,
+          borderColor: COLORS.selected,
+//        backgroundColor: COLORS[code],
+          borderWidth: 4,
+          pointRadius: 2,
+          pointBorderWidth: 1,
+          pointBackgroundColor: "#242a3c",
+          data: []
+        }]
+      },
+      options: {
+        aspectRatio: 1.6,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              let dateTime = tooltipItem[0].xLabel + " " + "12:00";
+              if (LANG === "ja") dateTime = dateTime + "時点";
+              if (LANG === "en") dateTime = "As of " + dateTime;
+              //let suffix = $box.find(".switch.selected").text();
+              let suffix = "";
+              return dateTime + " " + suffix;
+            },
+            label: function(tooltipItem, data){
+              let ret = data.datasets[0].label + ": " + addCommas(data.datasets[0].data[tooltipItem.index]) + " " + LABELS[LANG].unit["doubling"];
+              return ret;
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            stacked: false,
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            type: "linear",
+            location: "bottom",
+            stacked: false,
+            gridLines: {
+              display: true,
+              zeroLineColor: "rgba(255,255,255,0.7)",
+              color: "rgba(255, 255, 255, 0.3)"
+            },
+            ticks: {
+              beginAtZero: true,
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    // set graph type
+    config.options.scales.yAxes[0].type = graphValue;
+
+    if ($box.width() >= 400) {
+      config.options.aspectRatio = 2.0;
+    }
+
+    let latestValue = 0;
+    let prevValue = 0;
+    rows.forEach(function(row, i){
+      config.data.labels.push(row[1] + "/" + row[2]);
+      if (switchValue === "total") {
+        let hc = row[3] / 2;
+        let pi = i - 1;
+        while (0 < pi && hc < rows[pi][3]) {
+          pi--;
+        }
+        prevValue = latestValue;
+        latestValue = (0 < pi || rows[0][3] <= hc) ? (i - pi) : 0;
+        config.data.datasets[0].data.push(latestValue);
       } else if (i >= 1) {
         let prev = rows[i - 1];
         config.data.datasets[0].data.push(row[3] - prev[3]);
@@ -1379,15 +1645,13 @@ const init = () => {
           // Feb-12 or later
           if (2 < death_of_day[1] || (2 == death_of_day[1] && 12 <= death_of_day[2])) {
             gLocalGov["prefectures-data"].deaths.push(death_of_day);
-            //gLocalGov.transition.deaths.push(death_of_day.slice(0, 3).push(death_of_day.slice(3).reduce((a, x) => { a + x })));
-            //console.log("date: " + death_of_day.slice(0, 3));
-            //console.log(" sum: " + death_of_day.slice(3).reduce((a, x) => { return a + x }));
-            //console.log("date: " + death_of_day.slice(0, 3).push(death_of_day.slice(3).reduce((a, x) => { return a + x })));
-            console.log("date: " + death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
+            gLocalGov.transition.deaths.push(death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
+            console.log("total death: " + death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
           }
         });
 
         // draw chars of local goverments
+        drawTransitionBoxesLocalGov();
         drawPrefectureChartsLocalGov("13");
       }
     );
