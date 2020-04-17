@@ -1636,7 +1636,7 @@ const init = () => {
 
   // load the number of death by reported local goverment
   const loadDataLocalGov = () => {
-    $.get("https://raw.githubusercontent.com/swsoyee/2019-ncov-japan/master/Data/death.csv",
+    $.get("https://raw.githubusercontent.com/swsoyee/2019-ncov-japan/master/50_Data/death.csv",
       (csv) => {
         let sum   = Array(50).fill(0);
         let table = csv.split("\n").slice(1).map((row) => row.split(','));
