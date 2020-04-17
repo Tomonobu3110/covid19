@@ -1380,8 +1380,9 @@ const init = () => {
           if (2 < death_of_day[1] || (2 == death_of_day[1] && 12 <= death_of_day[2])) {
             gLocalGov["prefectures-data"].deaths.push(death_of_day);
             //gLocalGov.transition.deaths.push(death_of_day.slice(0, 3).push(death_of_day.slice(3).reduce((a, x) => { a + x })));
-            console.log("date: " + death_of_day.slice(0, 3));
-            console.log(" sum: " + death_of_day.slice(3).reduce((a, x) => { return a + x }));
+            //console.log("date: " + death_of_day.slice(0, 3));
+            //console.log(" sum: " + death_of_day.slice(3).reduce((a, x) => { return a + x }));
+            console.log("date: " + death_of_day.slice(0, 3).push(death_of_day.slice(3).reduce((a, x) => { return a + x })));
           }
         });
 
