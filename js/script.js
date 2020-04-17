@@ -1590,6 +1590,13 @@ const init = () => {
       drawTransitionChart($box, $box.attr("code"));
     });
 
+    $(".transition-localgov").find(".switch").on("click",function(){
+      let $box = $(this).closest(".transition-localgov");
+      $(this).siblings(".switch").removeClass("selected");
+      $(this).addClass("selected");
+      drawTransitionLocalGov($box, $box.attr("code"));
+    });
+
     $(".prefecture-chart").find(".switch").on("click",function(){
       let $box = $(this).closest(".prefecture-chart");
       $(this).siblings(".switch").removeClass("selected");
