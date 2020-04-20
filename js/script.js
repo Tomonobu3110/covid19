@@ -478,7 +478,7 @@ const init = () => {
         labels: [],
         datasets: [{
           label: $box.find("h3:first").text(),
-          backgroundColor: COLORS[code],
+          backgroundColor: COLORS[code][0],
           data: []
         }]
       },
@@ -1605,6 +1605,7 @@ const init = () => {
         drawPrefectureCharts("13");
         showUpdateDates();
         $("#cover-block").fadeOut();
+        $("#container").addClass("show");
 
         // load and draw chart of local goverments
         loadDataLocalGov();
