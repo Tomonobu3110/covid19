@@ -311,6 +311,7 @@ const init = () => {
     let rows = gData.transition[code];
     rows.forEach((row) => {
       row[3] += (5 <= row.length ? row[4] : 0) + (6 <= row.length ? row[5] : 0);
+      console.log(code + " len: " + row.length + " val: " + row[3]);
     });
 
     let config = {
