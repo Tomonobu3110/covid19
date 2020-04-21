@@ -300,21 +300,20 @@ const init = () => {
   // Draw Doubling Chart
   //
   const drawDoublingChart = ($box, code) => {
-
-//  console.log("[drawDoublingChart] " + code);
-
     let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
     let switchValue = "total";
     let graphValue = "linear";
-//    let switchValue = $box.find(".switch.selected").attr("value");
-//    let graphValue = $box.find(".graph.switch.selected").attr("value");
 
-    // "transition":{"carriers":[[2020,2,17,46],[2020,2,18,53], ... ,[2020,4,12,63132]]}
+    // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
+    // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
+    // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
     let rows = gData.transition[code];
+    rows.forEach((row) => {
+      row[3] += (5 <= row.length ? row[4] : 0) + (6 <= row.length ? row[5] : 0);
+    });
 
     let config = {
-//      type: "bar",
       type: "line",
       data: {
         labels: [],
