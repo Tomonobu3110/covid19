@@ -310,7 +310,7 @@ const init = () => {
     // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
     let rows = gData.transition[code];
     rows.forEach((row) => {
-      row[3] += (5 <= row.length ? row[4] : 0) + (6 <= row.length ? row[5] : 0);
+      row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
       console.log(code + " len: " + row.length + " val: " + row[3]);
     });
 
