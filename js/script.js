@@ -22,7 +22,7 @@ const COLORS = {
   carriers: ["#3DC", "#FEA", "#ABC"],
   cases: ["#6DF"],
   deaths: ["#EB8", "#ABC"],
-  discharged: ["#9FC"],
+  discharged: ["#9FC", "#ABC"],
   serious: ["#FEA"],
   pcrtested: ["#4CD"],
   dark: "#399",
