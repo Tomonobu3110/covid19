@@ -277,8 +277,8 @@ const init = () => {
     rows.forEach(function(row, i){
       if (switchValue === "total") {
         config.data.labels.push(row[1] + "/" + row[2]);
-        for (let j = 3; j < rows[0].length; j++) {
-          config.data.datasets[j - 3].data.push(row[j]);
+        for (let j = 3; j < 6; j++) {
+          config.data.datasets[j - 3].data.push((j < rows[0].length) ? row[j] : 0);
         }
       } else if (i >= 1) {
         config.data.labels.push(row[1] + "/" + row[2]);
