@@ -279,7 +279,7 @@ const init = () => {
         config.data.labels.push(row[1] + "/" + row[2]);
         for (let j = 3; j < rows[0].length; j++) {
           config.data.datasets[j - 3].data.push(row[j] - 0);
-          console.log(code + " i:" + i + " len:" + row.length);
+//        console.log(code + " i:" + i + " len:" + row.length);
         }
       } else if (i >= 1) {
         config.data.labels.push(row[1] + "/" + row[2]);
@@ -306,7 +306,7 @@ const init = () => {
         data: []
       };
 
-      console.log(code + " length:" + config.data.datasets[0].data.length);
+//    console.log(code + " length:" + config.data.datasets[0].data.length);
       for (let i = 0; i < config.data.datasets[0].data.length; i++) {
         let value = null;
         if (i >= days) {
