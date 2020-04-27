@@ -278,7 +278,7 @@ const init = () => {
       if (switchValue === "total") {
         config.data.labels.push(row[1] + "/" + row[2]);
         for (let j = 3; j < rows[0].length; j++) {
-          config.data.datasets[j - 3].data.push(row[j]);
+          config.data.datasets[j - 3].data.push(row[j] - 0);
           console.log(code + " i:" + i + " len:" + row.length);
         }
       } else if (i >= 1) {
@@ -306,6 +306,7 @@ const init = () => {
         data: []
       };
 
+      console.log(code + " length:" + config.data.datasets[0].data.length);
       for (let i = 0; i < config.data.datasets[0].data.length; i++) {
         let value = null;
         if (i >= days) {
@@ -343,7 +344,7 @@ const init = () => {
     let rows = gData.transition[code];
     rows.forEach((row) => {
       row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
-      console.log(code + " len: " + row.length + " val: " + row[3]);
+//    console.log(code + " len: " + row.length + " val: " + row[3]);
     });
 
     let config = {
@@ -1727,7 +1728,7 @@ const init = () => {
           if (2 < death_of_day[1] || (2 == death_of_day[1] && 12 <= death_of_day[2])) {
             gLocalGov["prefectures-data"].deaths.push(death_of_day);
             gLocalGov.transition.deaths.push(death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
-            console.log("total death: " + death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
+//          console.log("total death: " + death_of_day.slice(0, 3).concat(death_of_day.slice(3).reduce((a, x) => { return a + x })));
           }
         });
 
