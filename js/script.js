@@ -1706,7 +1706,7 @@ const init = () => {
         drawTransitionChart($box, $box.attr("code"));
       }
       else {
-        $box = $(this).closets(".transition-localgov");
+        $box = $(this).closest(".transition-localgov");
         if ($box.hasClass("transition-localgov")) {
           drawTransitionLocalGov($box, $box.attr("code"));
         }
