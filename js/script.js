@@ -1702,12 +1702,12 @@ const init = () => {
       }
       let $box = $(this).closest(".transition");
       console.log("found box:" + $box);
-      if ($box.hasClass("transition") {
+      if ($box.hasClass("transition")) {
         drawTransitionChart($box, $box.attr("code"));
       }
       else {
         $box = $(this).closets(".transition-localgov");
-        if ($box.hasClass("transition-localgov") {
+        if ($box.hasClass("transition-localgov")) {
           drawTransitionLocalGov($box, $box.attr("code"));
         }
       }
