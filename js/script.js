@@ -541,7 +541,20 @@ const init = () => {
               return dateTime + " " + suffix;
             },
             label: function(tooltipItem, data){
-              let ret = data.datasets[0].label + ": " + addCommas(data.datasets[0].data[tooltipItem.index]) + " " + LABELS[LANG].unit[code];
+//            let ret = data.datasets[0].label + ": " + addCommas(data.datasets[0].data[tooltipItem.index]) + " " + LABELS[LANG].unit[code];
+//            return ret;
+              let ret = [];
+              let total = 0;
+              data.datasets.forEach(function(ds, i){
+                if (!hasMovingAverage || i >= 1) {
+                  ret.push(ds.label + ": " + addCommas(ds.data[tooltipItem.index]) + " " + LABELS[LANG].unit[code]);
+                  total += ds.data[tooltipItem.index];
+                }
+              });
+              let showTotalLength = (hasMovingAverage) ? 3: 2;
+              if (data.datasets.length >= showTotalLength) {
+                ret.push(LABELS[LANG].total + ": " + addCommas(total) + " " + LABELS[LANG].unit[code]);
+              }
               return ret;
             }
           }
