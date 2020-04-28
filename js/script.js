@@ -309,7 +309,6 @@ const init = () => {
         data: []
       };
 
-//    console.log(code + " length:" + config.data.datasets[0].data.length);
       for (let i = 0; i < config.data.datasets[0].data.length; i++) {
         let value = null;
         if (i >= days) {
@@ -340,6 +339,7 @@ const init = () => {
     let $canvas = $chart.find("canvas")[0];
     let switchValue = "total";
     let graphValue = "linear";
+    let hasMovingAverage = ($box.find(".checkbox.moving-average").hasClass("on")) ? true: false;
 
     // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
     // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
@@ -471,6 +471,37 @@ const init = () => {
     let latestChange = addCommas(latestValue - prevValue).toString();
     if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
     $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
+
+    if (hasMovingAverage) {
+      let days = 7;
+      let dataset = {
+        type: "line",
+        label: LABELS[LANG].movingAverage,
+        fill: false,
+        borderColor: "#EDA",
+        borderWidth: 3,
+        pointRadius: 0,
+        data: []
+      };
+
+//    console.log(code + " length:" + config.data.datasets[0].data.length);
+      for (let i = 0; i < config.data.datasets[0].data.length; i++) {
+        let value = null;
+        if (i >= days) {
+          value = 0;
+          for (let j = 0; j < days; j++) {
+            config.data.datasets.forEach(function(dataset, dsi){
+              value += parseInt(dataset.data[i - j]);
+            });
+          }
+          value = value / days;
+        }
+
+        dataset.data.push(value);
+      }
+
+      config.data.datasets.unshift(dataset);
+    }
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
