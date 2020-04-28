@@ -339,7 +339,6 @@ const init = () => {
     let $canvas = $chart.find("canvas")[0];
     let switchValue = "total";
     let graphValue = "linear";
-    let hasMovingAverage = ($box.find(".checkbox.moving-average").hasClass("on")) ? true: false;
 
     // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
     // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
@@ -472,37 +471,6 @@ const init = () => {
     if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
     $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
 
-    if (hasMovingAverage) {
-      let days = 7;
-      let dataset = {
-        type: "line",
-        label: LABELS[LANG].movingAverage,
-        fill: false,
-        borderColor: "#EDA",
-        borderWidth: 3,
-        pointRadius: 0,
-        data: []
-      };
-
-//    console.log(code + " length:" + config.data.datasets[0].data.length);
-      for (let i = 0; i < config.data.datasets[0].data.length; i++) {
-        let value = null;
-        if (i >= days) {
-          value = 0;
-          for (let j = 0; j < days; j++) {
-            config.data.datasets.forEach(function(dataset, dsi){
-              value += parseInt(dataset.data[i - j]);
-            });
-          }
-          value = value / days;
-        }
-
-        dataset.data.push(value);
-      }
-
-      config.data.datasets.unshift(dataset);
-    }
-
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
   }
@@ -532,6 +500,8 @@ const init = () => {
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
+    let hasMovingAverage = ($box.find(".checkbox.moving-average").hasClass("on")) ? true: false;
+    console.log("hasMovingAverage:" + hasMovingAverage);
 
     let rows = gLocalGov.transition[code];
 
@@ -622,15 +592,45 @@ const init = () => {
     }
 
     rows.forEach(function(row, i){
+      config.data.labels.push(row[1] + "/" + row[2]);
       if (switchValue === "total") {
-        config.data.labels.push(row[1] + "/" + row[2]);
-        config.data.datasets[0].data.push(row[3]);
+        config.data.datasets[0].data.push(row[3] - 0);
       } else if (i >= 1) {
-        config.data.labels.push(row[1] + "/" + row[2]);
         let prev = rows[i - 1];
         config.data.datasets[0].data.push(row[3] - prev[3]);
       }
     });
+
+    if (hasMovingAverage) {
+      let days = 7;
+      let dataset = {
+        type: "line",
+        label: LABELS[LANG].movingAverage,
+        fill: false,
+        borderColor: "#EDA",
+        borderWidth: 3,
+        pointRadius: 0,
+        data: []
+      };
+
+//    console.log(code + " length:" + config.data.datasets[0].data.length);
+      for (let i = 0; i < config.data.datasets[0].data.length; i++) {
+        let value = null;
+        if (i >= days) {
+          value = 0;
+          for (let j = 0; j < days; j++) {
+            config.data.datasets.forEach(function(dataset, dsi){
+              value += parseInt(dataset.data[i - j]);
+            });
+          }
+          value = value / days;
+        }
+
+        dataset.data.push(value);
+      }
+
+      config.data.datasets.unshift(dataset);
+    }
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -1732,7 +1732,6 @@ const init = () => {
         $(this).addClass("on");
       }
       let $box = $(this).closest(".transition");
-      console.log("found box:" + $box);
       if ($box.hasClass("transition")) {
         drawTransitionChart($box, $box.attr("code"));
       }
