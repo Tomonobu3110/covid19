@@ -1701,7 +1701,15 @@ const init = () => {
         $(this).addClass("on");
       }
       let $box = $(this).closest(".transition");
-      drawTransitionChart($box, $box.attr("code"));
+      if ($box !== null) {
+        drawTransitionChart($box, $box.attr("code"));
+      }
+      else {
+        $box = $(this).closets(".transition-localgov");
+        if ($box !== null) {
+          drawTransitionLocalGov($box, $box.attr("code"));
+        }
+      }
     });
 
     $('a[href^="#"]').click(function() {
