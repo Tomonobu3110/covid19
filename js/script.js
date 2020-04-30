@@ -156,6 +156,7 @@ const init = () => {
     $(".transition").each(function(){
       let code = $(this).attr("code");
       drawTransitionChart($(this), code);
+      moveToRight($(this));
     });
 
     // draw doubling graph
@@ -165,8 +166,86 @@ const init = () => {
     });
   }
 
+  const drawAxisChart = ($box, mainConfigData, isStacked) => {
+    let $chart = $box.find(".axis-chart").empty().html("<canvas></canvas>");
+    let $canvas = $chart.find("canvas")[0];
+
+    let axisConfig = {
+      type: "bar",
+      data: mainConfigData,
+      options: {
+        maintainAspectRatio: false,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        scales: {
+          xAxes: [{
+            stacked: isStacked,
+            drawBorder: false,
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.0)",
+              maxRotation: 0,
+              minRotation: 0
+            }
+          }],
+          yAxes: [{
+            id: "axisScale",
+            location: "bottom",
+            stacked: isStacked,
+            gridLines: {
+              drawBorder: false,
+              display: false
+            },
+            ticks: {
+              beginAtZero: true,
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        }
+      }
+    };
+
+    axisConfig.data.datasets.forEach(function(dataset, i){
+      dataset.backgroundColor = "transparent";
+      dataset.borderColor = "transparent";
+    });
+
+    axisConfig.data.labels.forEach(function(label, i){
+      label = "";
+    });
+
+    window.myChart = new Chart($canvas.getContext('2d'), axisConfig);
+
+    let axisMax = window.myChart.scales.axisScale.max;
+    let axisMin = window.myChart.scales.axisScale.min;
+    let axisMaxLength = Math.max(axisMax.toString().length, axisMin.toString().length);
+    let axisCoverWidth = 0;
+    switch(axisMaxLength) {
+      case 1: axisCoverWidth = 22; break;
+      case 2: axisCoverWidth = 26; break;
+      case 3: axisCoverWidth = 34; break;
+      case 4: axisCoverWidth = 40; break;
+      case 5: axisCoverWidth = 52; break;
+      case 6: axisCoverWidth = 58; break;
+      case 7: axisCoverWidth = 64; break;
+    }
+
+    $box.find(".axis-cover").width(axisCoverWidth.toString() + "px");
+  }
+
   const drawTransitionChart = ($box, code) => {
-    let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+    let $chart = $box.find(".main-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
@@ -188,7 +267,7 @@ const init = () => {
         datasets: []
       },
       options: {
-        aspectRatio: 1.6,
+        maintainAspectRatio: false,
         legend: {
           display: false
         },
@@ -228,7 +307,8 @@ const init = () => {
           xAxes: [{
             stacked: true,
             gridLines: {
-              display: false
+              display: false,
+              zeroLineColor: "rgba(255,255,0,0.7)"
             },
             ticks: {
               fontColor: "rgba(255,255,255,0.7)",
@@ -246,18 +326,19 @@ const init = () => {
             gridLines: {
               display: true,
               zeroLineColor: "rgba(255,255,255,0.7)",
+              borderDash: [3, 1],
               color: "rgba(255, 255, 255, 0.3)"
             },
             ticks: {
               beginAtZero: true,
-              fontColor: "rgba(255,255,255,0.7)",
-              callback: function(value, index, values) {
-                if (Math.floor(value) === value) {
-                  return addCommas(value.toString());
-                }
-              }
+              fontColor: "transparent"
             }
           }]
+        },
+        layout: {
+          padding: {
+            left: 10
+          }
         }
       }
     };
@@ -297,6 +378,8 @@ const init = () => {
       }
     });
 
+    $chart.width(Math.max(config.data.labels.length * 8, $chart.width()));
+
     if (hasMovingAverage) {
       let days = 7;
       let dataset = {
@@ -327,8 +410,14 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    let ctx = $canvas.getContext('2d');
-    window.myChart = new Chart(ctx, config);
+    drawAxisChart($box, $.extend(true, {}, config.data), true);
+
+    window.myChart = new Chart($canvas.getContext('2d'), config);
+  }
+
+  const moveToRight = ($box) => {
+    let $wrapper = $box.find(".main-chart-wrapper");
+    $wrapper.animate({scrollLeft: $wrapper.width()}, 0);
   }
 
   //
@@ -483,6 +572,7 @@ const init = () => {
     $(".transition-localgov").each(function(){
       let code = $(this).attr("code");
       drawTransitionLocalGov($(this), code);
+      moveToRight($(this));
     });
 
     // draw doubling graph (local-gov)
@@ -496,12 +586,12 @@ const init = () => {
   // draw transition graph (data from local goverment)
   //
   const drawTransitionLocalGov = ($box, code) => {
-    let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+//  let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
+    let $chart = $box.find(".main-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
     let hasMovingAverage = ($box.find(".checkbox.moving-average").hasClass("on")) ? true: false;
-    console.log("hasMovingAverage:" + hasMovingAverage);
 
     let rows = gLocalGov.transition[code];
 
@@ -520,8 +610,7 @@ const init = () => {
         }]
       },
       options: {
-        aspectRatio: 1.6,
-        responsive: true,
+        maintainAspectRatio: false,
         legend: {
           display: false
         },
@@ -563,7 +652,8 @@ const init = () => {
           xAxes: [{
             stacked: false,
             gridLines: {
-              display: false
+              display: false,
+              zeroLineColor: "rgba(255,255,0,0.7)"
             },
             ticks: {
               fontColor: "rgba(255,255,255,0.7)",
@@ -581,18 +671,19 @@ const init = () => {
             gridLines: {
               display: true,
               zeroLineColor: "rgba(255,255,255,0.7)",
+              borderDash: [3, 1],
               color: "rgba(255, 255, 255, 0.3)"
             },
             ticks: {
               beginAtZero: true,
-              fontColor: "rgba(255,255,255,0.7)",
-              callback: function(value, index, values) {
-                if (Math.floor(value) === value) {
-                  return addCommas(value.toString());
-                }
-              }
+              fontColor: "transparent",
             }
           }]
+        },
+        layout: {
+          padding: {
+            left: 10
+          }
         }
       }
     };
@@ -613,6 +704,8 @@ const init = () => {
         config.data.datasets[0].data.push(row[3] - prev[3]);
       }
     });
+
+    $chart.width(Math.max(config.data.labels.length * 8, $chart.width()));
 
     if (hasMovingAverage) {
       let days = 7;
@@ -644,6 +737,8 @@ const init = () => {
 
       config.data.datasets.unshift(dataset);
     }
+
+    drawAxisChart($box, $.extend(true, {}, config.data), true);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -1055,6 +1150,7 @@ const init = () => {
     $(".prefecture-chart").each(function(){
       let code = $(this).attr("code");
       drawPrefectureChart(prefCode, code);
+      moveToRight($(this));
     });
 
     // draw doubling charts
@@ -1377,8 +1473,9 @@ const init = () => {
     let $box = $(".prefecture-localgov[code=" + typeCode + "]");
     $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
 
-    let $wrapper = $box.find(".chart").empty().html('<canvas></canvas>');
-    let $canvas = $wrapper.find("canvas")[0];
+    let $chart = $box.find(".chart").empty().html('<canvas></canvas>');
+//  let $chart = $box.find(".main-chart").empty().html('<canvas></canvas>');
+    let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
 
@@ -1395,8 +1492,10 @@ const init = () => {
         datasets: []
       },
       options: {
-        aspectRatio: 1.6,
-        animation: false,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
         responsive: true,
         legend: {
           display: false
@@ -1445,10 +1544,12 @@ const init = () => {
           yAxes: [{
             type: "logarithmic",
             gridLines: {
+              borderDash: [3, 1],
               color: "rgba(255,255,255,0.2)"
             },
             ticks: {
-              fontColor: "rgba(255,255,255,0.7)",
+              fontColor: "transparent",
+              zeroLineColor: "rgba(255,255,255,0.7)",
               callback: function(value, index, values) {
                 if (Math.floor(value) === value) {
                   return addCommas(value.toString());
@@ -1456,6 +1557,11 @@ const init = () => {
               }
             }
           }]
+        },
+        layout: {
+          padding: {
+            left: 10
+          }
         }
       }
     };
@@ -1513,6 +1619,13 @@ const init = () => {
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
+/*
+    $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
+
+    drawAxisChart($box, $.extend(true, {}, config.data), false);
+
+    window.myChart = new Chart($canvas.getContext('2d'), config);
+*/
   }
 
   // draw doubling graph (data from local goverments)
