@@ -1459,6 +1459,7 @@ const init = () => {
     $(".prefecture-localgov").each(function(){
       let code = $(this).attr("code");
       drawPrefectureLocalGov(prefCode, code);
+      moveToRight($(this));
     });
 
     // draw doubling charts (data from local goverments)
@@ -1473,8 +1474,7 @@ const init = () => {
     let $box = $(".prefecture-localgov[code=" + typeCode + "]");
     $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
 
-    let $chart = $box.find(".chart").empty().html('<canvas></canvas>');
-//  let $chart = $box.find(".main-chart").empty().html('<canvas></canvas>');
+    let $chart = $box.find(".main-chart").empty().html('<canvas></canvas>');
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
     let graphValue = $box.find(".graph.switch.selected").attr("value");
@@ -1617,15 +1617,12 @@ const init = () => {
       }
     });
 
-    let ctx = $canvas.getContext('2d');
-    window.myChart = new Chart(ctx, config);
-/*
     $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
 
     drawAxisChart($box, $.extend(true, {}, config.data), false);
 
-    window.myChart = new Chart($canvas.getContext('2d'), config);
-*/
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
   }
 
   // draw doubling graph (data from local goverments)
