@@ -350,6 +350,11 @@ const init = () => {
       config.options.aspectRatio = 2.0;
     }
 
+/* upstream/master
+    if (typeof updateConfig === 'function') {
+      updateConfig(config);
+*/
+
     for (let i = 3; i < rows[0].length; i++) {
       config.data.datasets.push({
         label: LABELS[LANG].transition[code][i - 3],
@@ -1772,8 +1777,7 @@ const init = () => {
     if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
     $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
 
-    let ctx = $canvas.getContext('2d');
-    window.myChart = new Chart(ctx, config);
+    window.myChart = new Chart($canvas.getContext('2d'), config);
   }
 
   const showUpdateDates = () => {
