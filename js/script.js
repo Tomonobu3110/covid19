@@ -166,7 +166,7 @@ const init = () => {
     });
   }
 
-  const drawAxisChart = ($box, mainConfigData, isStacked) => {
+  const drawAxisChart = ($box, mainConfigData, isStacked, graphType) => {
     let $chart = $box.find(".axis-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
 
@@ -195,6 +195,7 @@ const init = () => {
             }
           }],
           yAxes: [{
+            type: graphType,
             id: "axisScale",
             location: "bottom",
             stacked: isStacked,
@@ -415,7 +416,7 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    drawAxisChart($box, $.extend(true, {}, config.data), true);
+    drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
@@ -743,7 +744,7 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    drawAxisChart($box, $.extend(true, {}, config.data), true);
+    drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -1624,7 +1625,7 @@ const init = () => {
 
     $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
 
-    drawAxisChart($box, $.extend(true, {}, config.data), false);
+    drawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
