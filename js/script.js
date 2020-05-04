@@ -262,8 +262,6 @@ const init = () => {
     }
     drawLatestValue($box, valueLatest, valueLatest - valuePrev);
 
-    console.log("debug1 : " + rows[rows.length - 1][3]); //////
-
     let config = {
       type: "bar",
       data: {
@@ -347,8 +345,6 @@ const init = () => {
       }
     };
 
-    console.log("debug2 : " + rows[rows.length - 1][3]); //////
-
     // set graph type
     config.options.scales.yAxes[0].type = graphValue;
 
@@ -369,8 +365,6 @@ const init = () => {
       });
     }
 
-    console.log("debug3 : " + rows[rows.length - 1][3]); //////
-
     rows.forEach(function(row, i){
       if (switchValue === "total") {
         config.data.labels.push(row[1] + "/" + row[2]);
@@ -390,8 +384,6 @@ const init = () => {
         }
       }
     });
-
-    console.log("debug4 : " + rows[rows.length - 1][3]); //////
 
     $chart.width(Math.max(config.data.labels.length * 8, $chart.width()));
 
@@ -425,11 +417,7 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    console.log("debug5 : " + rows[rows.length - 1][3]); //////
-
     drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
-
-    console.log("debug6 : " + rows[rows.length - 1][3]); //////
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
