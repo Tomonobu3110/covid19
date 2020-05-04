@@ -451,7 +451,8 @@ const init = () => {
     // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
     // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
     // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
-    let rows = gData.transition[code];
+//  let rows = gData.transition[code];
+    let rows = JSON.parse(JSON.stringify(gData.transition[code])); // deep copy
     rows.forEach((row) => {
       row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
 //    console.log(code + " len: " + row.length + " val: " + row[3]);
