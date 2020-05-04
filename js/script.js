@@ -258,6 +258,7 @@ const init = () => {
     for (let i = 3; i < rows[0].length; i++) {
       valueLatest += rows[rows.length - 1][i];
       valuePrev   += rows[rows.length - 2][i];
+      console.log("code : " + code + " latest : " + valueLatest + " prev : " + valuePrev);
     }
     drawLatestValue($box, valueLatest, valueLatest - valuePrev);
 
