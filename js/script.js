@@ -1166,13 +1166,12 @@ const init = () => {
     $("#select-prefecture").val(prefCode);
 
     // draw transition charts
-/*
+
     $(".prefecture-chart").each(function(){
       let code = $(this).attr("code");
       drawPrefectureChart(prefCode, code);
       moveToRight($(this));
     });
-*/
 
     // draw doubling charts
     $(".pref-doubling").each(function(){
@@ -1181,6 +1180,157 @@ const init = () => {
     });
   }
 
+  const drawPrefectureChart = (prefCode, typeCode) => {
+    let $box = $(".prefecture-chart[code=" + typeCode + "]");
+    $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
+
+    let $chart = $box.find(".main-chart").empty().html('<canvas></canvas>');
+    let $canvas = $chart.find("canvas")[0];
+    let switchValue = $box.find(".switch.selected").attr("value");
+    let graphValue = $box.find(".graph.switch.selected").attr("value");
+
+    let rows = gData["prefectures-data"][typeCode];
+    let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
+    let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
+    drawLatestValue($box, latestValue, latestChange);
+
+    let config = {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          mode: 'x',
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              if (tooltipItem[0].datasetIndex === 0) {
+                return $box.find("h3").text();
+              }
+            },
+            label: function(tooltipItem, data){
+              if (tooltipItem.datasetIndex === 0) {
+                let suffix = {
+                  ja: " 名",
+                  en: " cases"
+                };
+                return tooltipItem.xLabel.trim() + ": " + tooltipItem.yLabel + suffix[LANG];
+              }
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            position: "bottom",
+            gridLines: {
+              display: false
+            },
+            ticks: {
+              suggestedMin: 0,
+              fontColor: "rgba(255,255,255,0.7)",
+              maxRotation: 0,
+              minRotation: 0,
+              callback: (label) => {
+                return " " + label + " ";
+              }
+            }
+          }],
+          yAxes: [{
+            gridLines: {
+              borderDash: [3, 1],
+              color: "rgba(255,255,255,0.2)"
+            },
+            ticks: {
+              fontColor: "transparent",
+              zeroLineColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                if (Math.floor(value) === value) {
+                  return addCommas(value.toString());
+                }
+              }
+            }
+          }]
+        },
+        layout: {
+          padding: {
+            left: 10
+          }
+        }
+      }
+    };
+
+    // set graph type
+    config.options.scales.yAxes[0].type = graphValue;
+
+    config.data.datasets.push({
+      fill: false,
+      lineTension: 0.1,
+      borderColor: COLORS.selected,
+      borderWidth: 3,
+      pointRadius: 2,
+      pointBorderWidth: 1,
+      pointBackgroundColor: "#242a3c",
+      data: []
+    });
+
+    for (let i = 1; i <= 46; i++) {
+      config.data.datasets.push({
+        fill: false,
+        lineTension: 0.1,
+        borderColor: "#267",
+        borderWidth: 1,
+        pointRadius: 0,
+        data: []
+      });
+    }
+
+    rows.forEach(function(row, i){
+      if (switchValue === "total") {
+        config.data.labels.push(row[1] + "/" + row[2]);
+        config.data.datasets[0].data.push(row[parseInt(prefCode) + 2]);
+        for (let j = 1; j <= 46; j++) {
+          let k = (j >= parseInt(prefCode)) ? j + 1: j;
+          config.data.datasets[j].data.push(row[k + 2]);
+        }
+      } else {
+        if (i >= 1) {
+          config.data.labels.push(row[1] + "/" + row[2]);
+
+          let prev = rows[i - 1][parseInt(prefCode) + 2];
+          config.data.datasets[0].data.push(row[parseInt(prefCode) + 2] - prev);
+
+          for (let j = 1; j <= 46; j++) {
+            let k = (j >= parseInt(prefCode)) ? j + 1: j;
+            let prev = rows[i - 1][k + 2];
+            config.data.datasets[j].data.push(row[k + 2] - prev);
+          }
+        }
+      }
+    });
+
+    $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
+
+    drawAxisChart($box, $.extend(true, {}, config.data), false);
+
+    window.myChart = new Chart($canvas.getContext('2d'), config);
+  }
+
+/*
   const drawPrefectureChart = (prefCode, typeCode) => {
 
     console.log("prefecture : " + code); ////
@@ -1328,6 +1478,7 @@ const init = () => {
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
   }
+*/
 
   const drawPrefDoublingChart = (prefCode, typeCode) => {
     let $box = $(".pref-doubling[code=" + typeCode + "]");
