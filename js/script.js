@@ -55,7 +55,7 @@ const LABELS = {
       serious: "名",
       deaths: "名",
       doubling: "日",
-      pcrtests: "名"
+      pcrtests: "名",
     },
     demography: {
       deaths: "死亡",
@@ -251,6 +251,9 @@ const init = () => {
   }
 
   const drawTransitionChart = ($box, code) => {
+
+    console.log(code);
+
     let $chart = $box.find(".main-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
     let switchValue = $box.find(".switch.selected").attr("value");
