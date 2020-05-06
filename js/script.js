@@ -1325,7 +1325,7 @@ const init = () => {
 
     $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
 
-    drawAxisChart($box, $.extend(true, {}, config.data), false);
+    drawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
