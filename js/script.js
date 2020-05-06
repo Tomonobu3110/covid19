@@ -1166,11 +1166,13 @@ const init = () => {
     $("#select-prefecture").val(prefCode);
 
     // draw transition charts
+/*
     $(".prefecture-chart").each(function(){
       let code = $(this).attr("code");
       drawPrefectureChart(prefCode, code);
       moveToRight($(this));
     });
+*/
 
     // draw doubling charts
     $(".pref-doubling").each(function(){
