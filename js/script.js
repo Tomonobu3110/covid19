@@ -252,7 +252,7 @@ const init = () => {
 
   const drawTransitionChart = ($box, code) => {
 
-    console.log(code);
+    console.log("transition : " + code); ////
 
     let $chart = $box.find(".main-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
@@ -439,6 +439,9 @@ const init = () => {
   // Draw Doubling Chart
   //
   const drawDoublingChart = ($box, code) => {
+
+    console.log("doubling : " + code); ////
+
     let $chart = $box.find(".chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
     let switchValue = "total";
@@ -1177,6 +1180,9 @@ const init = () => {
   }
 
   const drawPrefectureChart = (prefCode, typeCode) => {
+
+    console.log("prefecture : " + code); ////
+
     let $box = $(".prefecture-chart[code=" + typeCode + "]");
     $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
 
