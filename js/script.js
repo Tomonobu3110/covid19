@@ -171,6 +171,20 @@ const init = () => {
     });
   }
 
+  const drawLastDate = ($box, config) => {
+    let $updated = $box.find("h5.updated");
+    if (!$updated.hasClass("show")) {
+      let lastDate = config.data.labels[config.data.labels.length - 1];
+      let updatedDate = {
+        ja: lastDate.replace("/", "月") + "日時点",
+        en: "As of " + lastDate
+      };
+
+      $updated.text(updatedDate[LANG]);
+      $updated.addClass("show");
+    }
+  }
+
   const drawAxisChart = ($box, mainConfigData, isStacked, graphType) => {
     let $chart = $box.find(".axis-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
@@ -426,6 +440,7 @@ const init = () => {
     }
 
     drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
+    drawLastDate($box, config);
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
@@ -1325,160 +1340,11 @@ const init = () => {
 
     $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
 
+    drawLastDate($box, config);
     drawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
-
-/*
-  const drawPrefectureChart = (prefCode, typeCode) => {
-
-    console.log("prefecture : " + code); ////
-
-    let $box = $(".prefecture-chart[code=" + typeCode + "]");
-    $box.find("h3").find("span").text(gData["prefectures-map"][parseInt(prefCode) - 1][LANG]);
-
-    let $wrapper = $box.find(".main-chart").empty().html('<canvas></canvas>');
-    let $canvas = $wrapper.find("canvas")[0];
-    let switchValue = $box.find(".switch.selected").attr("value");
-    let graphValue = $box.find(".graph.switch.selected").attr("value");
-
-    let rows = gData["prefectures-data"][typeCode];
-    let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
-    let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
-    drawLatestValue($box, latestValue, latestChange);
-
-    let config = {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: []
-      },
-      options: {
-        aspectRatio: 1.6,
-        animation: false,
-        responsive: true,
-        legend: {
-          display: false
-        },
-        title: {
-          display: false
-        },
-        tooltips: {
-          xPadding: 24,
-          yPadding: 12,
-          mode: 'x',
-          displayColors: false,
-          callbacks: {
-            title: function(tooltipItem){
-              if (tooltipItem[0].datasetIndex === 0) {
-                return $box.find("h3").text();
-              }
-            },
-            label: function(tooltipItem, data){
-              if (tooltipItem.datasetIndex === 0) {
-                let suffix = {
-                  ja: " 名",
-                  en: " cases"
-                };
-                return tooltipItem.xLabel.trim() + ": " + tooltipItem.yLabel + suffix[LANG];
-              }
-            }
-          }
-        },
-        scales: {
-          xAxes: [{
-            position: "bottom",
-            gridLines: {
-              display: false
-            },
-            ticks: {
-              suggestedMin: 0,
-              fontColor: "rgba(255,255,255,0.7)",
-              maxRotation: 0,
-              minRotation: 0,
-              callback: (label) => {
-                return " " + label + " ";
-              }
-            }
-          }],
-          yAxes: [{
-            type: "logarithmic",
-            gridLines: {
-              color: "rgba(255,255,255,0.2)"
-            },
-            ticks: {
-              fontColor: "rgba(255,255,255,0.7)",
-              callback: function(value, index, values) {
-                if (Math.floor(value) === value) {
-                  return addCommas(value.toString());
-                }
-              }
-            }
-          }]
-        }
-      }
-    };
-
-    // set graph type
-    config.options.scales.yAxes[0].type = graphValue;
-
-    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 2.0;
-
-    config.data.datasets.push({
-      fill: false,
-      lineTension: 0.1,
-      borderColor: COLORS.selected,
-      borderWidth: 3,
-      pointRadius: 2,
-      pointBorderWidth: 1,
-      pointBackgroundColor: "#242a3c",
-      data: []
-    });
-
-    for (let i = 1; i <= 46; i++) {
-      config.data.datasets.push({
-        fill: false,
-        lineTension: 0.1,
-        borderColor: "#267",
-        borderWidth: 1,
-        pointRadius: 0,
-        data: []
-      });
-    }
-
-    rows.forEach(function(row, i){
-      if (switchValue === "total") {
-        config.data.labels.push(row[1] + "/" + row[2]);
-        config.data.datasets[0].data.push(row[parseInt(prefCode) + 2]);
-        for (let j = 1; j <= 46; j++) {
-          let k = (j >= parseInt(prefCode)) ? j + 1: j;
-          config.data.datasets[j].data.push(row[k + 2]);
-        }
-      } else {
-        if (i >= 1) {
-          config.data.labels.push(row[1] + "/" + row[2]);
-
-          let prev = rows[i - 1][parseInt(prefCode) + 2];
-          config.data.datasets[0].data.push(row[parseInt(prefCode) + 2] - prev);
-
-          for (let j = 1; j <= 46; j++) {
-            let k = (j >= parseInt(prefCode)) ? j + 1: j;
-            let prev = rows[i - 1][k + 2];
-            config.data.datasets[j].data.push(row[k + 2] - prev);
-          }
-        }
-      }
-    });
-
-    $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
-
-    drawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
-
-    let ctx = $canvas.getContext('2d');
-    window.myChart = new Chart(ctx, config);
-  }
-*/
 
   const drawPrefDoublingChart = (prefCode, typeCode) => {
     let $box = $(".pref-doubling[code=" + typeCode + "]");
@@ -1954,14 +1820,12 @@ const init = () => {
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
 
-  const showUpdateDates = () => {
-    ["last", "transition", "demography", "prefectures"].forEach(function(cls){
-      $(".updated-" + cls).text(gData.updated[cls][LANG]);
-    });
+  const showUpdateDate = () => {
+    $(".updated-last").text(gData.updated.last[LANG]);
   }
 
   const loadData = () => {
-    $.getJSON("data/data.json", function(data){
+    $.getJSON("data/data.json", function(data) {
       gData = data;
       try {
         updateThresholds();
@@ -1970,7 +1834,7 @@ const init = () => {
         drawJapanMap();
         drawRegionChart("");
         drawPrefectureCharts("13");
-        showUpdateDates();
+        showUpdateDate();
         $("#cover-block").fadeOut();
         $("#container").addClass("show");
 
@@ -1979,7 +1843,7 @@ const init = () => {
       } catch (err) {
         alert("error");
       }
-    })
+    });
   }
 
   const bindEvents = () => {
