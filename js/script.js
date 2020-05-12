@@ -655,7 +655,8 @@ const init = () => {
         labels: [],
         datasets: [{
           label: $box.find("h3:first").text(),
-          backgroundColor: COLORS[code][0],
+          //backgroundColor: COLORS[code][0],
+          backgroundColor: COLORS["deaths"],
           data: []
         }]
       },
