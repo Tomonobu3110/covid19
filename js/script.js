@@ -430,8 +430,8 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
     drawLastDate($box, config);
+    drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
 
     window.myChart = new Chart($canvas.getContext('2d'), config);
   }
