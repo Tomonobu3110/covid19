@@ -986,13 +986,13 @@ const init = () => {
         labels: [],
         datasets: [{
           label: LABELS[LANG].demography.deaths,
-          backgroundColor: COLORS.deaths[0],
+          backgroundColor: COLORS.deaths,
           borderWidth: 0.5,
           borderColor: "#242a3c",
           data: []
         },{
           label: LABELS[LANG].demography.serious,
-          backgroundColor: COLORS.serious[0],
+          backgroundColor: COLORS.serious,
           borderWidth: 0.5,
           borderColor: "#242a3c",
           data: []
