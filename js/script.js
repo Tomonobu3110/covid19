@@ -48,7 +48,7 @@ const LABELS = {
       deaths: "名",
       doubling: "日",
       pcrtested: "名",
-      pcrtests: "名",
+      pcrtests: "件"
     },
     demography: {
       deaths: "死亡",
@@ -398,12 +398,6 @@ const init = () => {
 
     // set graph type
     config.options.scales.yAxes[0].type = graphValue;
-
-/*
-    if ($box.width() >= 400) {
-      config.options.aspectRatio = 2.0;
-    }
-*/
 
     for (let i = 3; i < rows[0].length; i++) {
       config.data.datasets.push({
