@@ -20,7 +20,7 @@ const LANG = $("html").attr("lang");
 const COLORS = {
   default: "#3DC",
   second: "#6DF",
-  third: "#FEA",
+  third: "#399",
   deaths: "#EB8",
   serious: "#FEA",
   pcrtests: "#6F6587,#5987A5,#3BA9B0,#48C7A6,#86E18D,#D5F474".split(","),
@@ -38,7 +38,8 @@ const LABELS = {
       serious: ["重症者数"],
       deaths: ["死亡者数"],
       pcrtested: ["PCR検査人数"],
-      pcrtests: ["国立感染症研究所","検疫所","地方衛生研究所・保健所","民間検査会社","大学等","医療機関"]
+      pcrtests: ["国立感染症研究所","検疫所","地方衛生研究所・保健所","民間検査会社","大学等","医療機関"],
+      reproduction: ["実効再生産数"]
     },
     unit: {
       carriers: "名",
@@ -48,7 +49,8 @@ const LABELS = {
       deaths: "名",
       doubling: "日",
       pcrtested: "名",
-      pcrtests: "件"
+      pcrtests: "件",
+      reproduction: ""
     },
     demography: {
       deaths: "死亡",
@@ -78,7 +80,8 @@ const LABELS = {
       serious: ["Serious"],
       deaths: ["Deaths"],
       pcrtested: ["PCR Tested"],
-      pcrtests: ["National Institute of Infectious Diseases","Quarantine Stations","Public Health Institute, Public Health Center","Private Testing Companies","Universities","Medical Institutions"]
+      pcrtests: ["National Institute of Infectious Diseases","Quarantine Stations","Public Health Institute, Public Health Center","Private Testing Companies","Universities","Medical Institutions"],
+      reproduction: ["Effective Reproduction Number"]
     },
     unit: {
       carriers: "",
@@ -88,7 +91,8 @@ const LABELS = {
       deaths: "",
       doubling: "days",
       pcrtested: "",
-      pcrtests: ""
+      pcrtests: "",
+      reproduction: ""
     },
     demography: {
       deaths: "Deaths",
@@ -139,16 +143,6 @@ const init = () => {
     }
   }
 
-  const drawLatestValue = ($box, latestValue, latestChange) => {
-    latestChange = addCommas(latestChange).toString();
-        if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
-    let $latest = $box.find(".latest");
-        $latest.find(".value").text(addCommas(latestValue));
-        $latest.find(".unit").text(LABELS[LANG].unit[$box.attr("code")]);
-        $latest.find(".type").text(capitalize($box.find(".switch[value=total]").text()));
-        $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
-  }
-
   const drawTransitionBoxes = () => {
     // draw transition graph
     $(".transition.nationwide").each(function(){
@@ -177,7 +171,7 @@ const init = () => {
     }
   }
 
-  const drawAxisChart = ($box, mainConfigData, isStacked, graphType) => {
+  const gDrawAxisChart = ($box, mainConfigData, isStacked, graphType) => {
     let $chart = $box.find(".axis-chart").empty().html("<canvas></canvas>");
     let $canvas = $chart.find("canvas")[0];
 
@@ -256,6 +250,16 @@ const init = () => {
     $box.find(".axis-cover").width(axisCoverWidth.toString() + "px");
   }
 
+  const gDrawLatestValue = ($box, latestValue, latestChange) => {
+    latestChange = addCommas(latestChange).toString();
+        if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+    let $latest = $box.find(".latest");
+        $latest.find(".value").text(addCommas(latestValue));
+        $latest.find(".unit").text(LABELS[LANG].unit[$box.attr("code")]);
+        $latest.find(".type").text(capitalize($box.find(".switch[value=total]").text()));
+        $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
+  }
+
   const drawTransitionChart = ($box, code, prefCode, hasDuration = false) => {
     console.log("transition : " + code); ////
 
@@ -263,27 +267,124 @@ const init = () => {
       let ret = COLORS.default;
       let ymd = (parseInt(row[0]) * 10000) + (parseInt(row[1]) * 100) + parseInt(row[2]);
 
-      if (prefCode === "" && code === "deaths" && ymd >= 20200413) {
-        ret = COLORS.second;
-      }
-
-      if (prefCode === "" && code === "discharged" && ymd >= 20200420) {
-        ret = COLORS.second;
-      }
-
-      if (prefCode === "" && code === "pcrtested" && ymd >= 20200303) {
-        ret = COLORS.second;
+      if (  (prefCode === "" && code === "deaths"     && ymd < 20200413)
+        ||  (prefCode === "" && code === "discharged" && ymd < 20200420)
+        ||  (prefCode === "" && code === "pcrtested"  && ymd < 20200303)
+      ) {
+        ret = COLORS.third;
       }
 
       if (ymd >= 20200508) {
-        ret = COLORS.third;
+        ret = COLORS.second;
       }
 
       if (prefCode === "" && code === "pcrtests") {
         ret = COLORS.pcrtests[index];
       }
 
+      if (code === "reproduction") {
+        ret = "#242A3C";
+      }
+
       return ret;
+    }
+
+    const drawLatestValue = ($box, rows) => {
+      let valueLatest = 0;
+      let valuePrev   = 0;
+
+      for (let i = 3; i < rows[0].length; i++) {
+        valueLatest += rows[rows.length - 1][i];
+        valuePrev   += rows[rows.length - 2][i];
+      }
+
+      let latestChange = Math.round((valueLatest - valuePrev) * 100) / 100;
+      latestChange = addCommas(latestChange).toString();
+          if (latestChange.charAt(0) !== "-") latestChange = "+" + latestChange;
+      let $latest = $box.find(".latest");
+          $latest.find(".value").text(addCommas(valueLatest));
+          $latest.find(".unit").text(LABELS[LANG].unit[$box.attr("code")]);
+          $latest.find(".type").text(capitalize($box.find(".switch[value=total]").text()));
+          $latest.find(".change").text(LABELS[LANG].change + " " + latestChange);
+    }
+
+    const drawAxisChart = ($box, mainConfigData, isStacked) => {
+      let $chart = $box.find(".axis-chart").empty().html("<canvas></canvas>");
+      let $canvas = $chart.find("canvas")[0];
+
+      let axisConfig = {
+        type: "bar",
+        data: mainConfigData,
+        options: {
+          maintainAspectRatio: false,
+          legend: {
+            display: false
+          },
+          title: {
+            display: false
+          },
+          scales: {
+            xAxes: [{
+              stacked: isStacked,
+              drawBorder: false,
+              gridLines: {
+                display: false
+              },
+              ticks: {
+                fontColor: "rgba(255,255,255,0.0)",
+                maxRotation: 0,
+                minRotation: 0
+              }
+            }],
+            yAxes: [{
+              id: "axisScale",
+              location: "bottom",
+              stacked: isStacked,
+              gridLines: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                beginAtZero: true,
+                fontColor: "rgba(255,255,255,0.7)",
+                callback: function(value, index, values) {
+                  if (Math.floor(value) === value) {
+                    return addCommas(value.toString());
+                  }
+                }
+              }
+            }]
+          }
+        }
+      };
+
+      axisConfig.data.datasets.forEach(function(dataset, i){
+        dataset.backgroundColor = "transparent";
+        dataset.borderColor = "transparent";
+        dataset.pointBorderColor = "transparent";
+      });
+
+      axisConfig.data.labels.forEach(function(label, i){
+        label = "";
+      });
+
+      window.myChart = new Chart($canvas.getContext('2d'), axisConfig);
+
+      let axisMax = window.myChart.scales.axisScale.max;
+      let axisMin = window.myChart.scales.axisScale.min;
+      let axisMaxLength = Math.max(axisMax.toString().length, axisMin.toString().length);
+      let axisCoverWidth = 0;
+      switch(axisMaxLength) {
+        case 1: axisCoverWidth = 22; break;
+        case 2: axisCoverWidth = 26; break;
+        case 3: axisCoverWidth = 34; break;
+        case 4: axisCoverWidth = 40; break;
+        case 5: axisCoverWidth = 52; break;
+        case 6: axisCoverWidth = 58; break;
+        case 7: axisCoverWidth = 64; break;
+      }
+
+      $box.find(".axis-cover").width(axisCoverWidth.toString() + "px");
     }
 
     let $chart = $box.find(".main-chart").empty().html("<canvas></canvas>");
@@ -301,14 +402,7 @@ const init = () => {
       });
     }
 
-    let valueLatest = 0;
-    let valuePrev   = 0;
-    for (let i = 3; i < rows[0].length; i++) {
-      valueLatest += rows[rows.length - 1][i];
-      valuePrev   += rows[rows.length - 2][i];
-      console.log("code : " + code + " length : " + rows.length + " latest : " + valueLatest + " prev : " + valuePrev);
-    }
-    drawLatestValue($box, valueLatest, valueLatest - valuePrev);
+    drawLatestValue($box, rows);
 
     let config = {
       type: "bar",
@@ -405,6 +499,15 @@ const init = () => {
         backgroundColor: [],
         data: []
       });
+
+      if (code === "reproduction") {
+        let ds = config.data.datasets[config.data.datasets.length - 1];
+        ds.type = "line";
+        ds.fill = false;
+        ds.pointRadius = 2;
+        ds.pointBorderColor = "#EC2";
+        ds.borderColor = "#EC2";
+      }
     }
 
     let prevBarColor = "";
@@ -652,7 +755,7 @@ const init = () => {
 
     let latestValue = rows[rows.length - 1][3];
     let latestChange = latestValue - rows[rows.length - 2][3];
-    drawLatestValue($box, latestValue, latestChange);
+    gDrawLatestValue($box, latestValue, latestChange);
 
     let config = {
       type: "bar",
@@ -794,7 +897,7 @@ const init = () => {
       config.data.datasets.unshift(dataset);
     }
 
-    drawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
+    gDrawAxisChart($box, $.extend(true, {}, config.data), true, graphValue);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -1399,7 +1502,7 @@ const init = () => {
 
     let latestValue = rows[rows.length - 1][parseInt(prefCode) + 2];
     let latestChange = latestValue - rows[rows.length - 2][parseInt(prefCode) + 2];
-    drawLatestValue($box, latestValue, latestChange);
+    gDrawLatestValue($box, latestValue, latestChange);
 
     let config = {
       type: "line",
@@ -1535,7 +1638,7 @@ const init = () => {
 
     $chart.width(Math.max(config.data.labels.length * 10, $chart.width()));
 
-    drawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
+    gDrawAxisChart($box, $.extend(true, {}, config.data), false, graphValue);
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
@@ -1819,4 +1922,3 @@ const init = () => {
 $(function(){
   init();
 });
-
