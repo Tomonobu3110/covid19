@@ -632,7 +632,8 @@ const init = () => {
       dt.setDate(dt.getDate() + i);
 
       // item for the day
-      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), value];
+      let sum  = value.reduce((a, x) => {return a + ((x || 0) - 0);}, 0);
+      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), sum];
       rows.push(item);
     });
 
