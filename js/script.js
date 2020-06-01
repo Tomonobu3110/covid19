@@ -134,9 +134,9 @@ const init = () => {
 
     for (thType in gThresholds) {
       let values = [];
-      let rows = gData["prefectures-data"][thType];
+      let rows = gData["prefectures-data"][thType].values;
       let latest = rows[rows.length - 1];
-      for (let i = 3; i < latest.length; i++) {
+      for (let i = 0; i < latest.length; i++) {
         values.push(latest[i]);
       }
       gThresholds[thType] = median(values);
