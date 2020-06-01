@@ -1386,8 +1386,9 @@ const init = () => {
     let $canvas = $wrapper.find("canvas")[0];
 
     // data format convert
-    let from   = gData.transition[code].from;
-    let values = gData.transition[code].values;
+    let from   = gData["prefectures-data"][typeCode].from;
+    let values = gData["prefectures-data"][typeCode].values;
+
     rows = [];
     values.forEach((value, i) => {
       // create date
@@ -1398,8 +1399,6 @@ const init = () => {
       let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), value].flat();
       rows.push(item);
     });
-
-//  let rows = gData["prefectures-data"][typeCode];
 
     let config = {
       type: "line",
