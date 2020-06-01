@@ -1525,7 +1525,6 @@ const init = () => {
           ++j;
         }
       }
-
     });
 
     // latest
