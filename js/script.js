@@ -155,6 +155,8 @@ const init = () => {
       let code = $(this).attr("code");
       drawDoublingChart($(this), code);
     });
+
+    console.log("fin. drawTransitionBoxes"); //////
   }
 
   const drawLastDate = ($box, config) => {
@@ -587,14 +589,27 @@ const init = () => {
     let switchValue = "total";
     let graphValue = "linear";
 
+    let from   = gData.transition[code].from;
+    let values = gData.transition[code].values;
+
+    // data format convert
+    rows = [];
+    values.forEach((value, i) => {
+      // create date
+      let dt = new Date(from[0], from[1] - 1, from[2]);
+      dt.setDate(dt.getDate() + i);
+
+      // item for the day
+      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), value];
+      rows.push(item);
+    });
+
     // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
     // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
     // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
-//  let rows = gData.transition[code];
-    let rows = JSON.parse(JSON.stringify(gData.transition[code])); // deep copy
     rows.forEach((row) => {
       row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
-//    console.log(code + " len: " + row.length + " val: " + row[3]);
+      console.log(code + " len: " + row.length + " val: " + row[3]);
     });
 
     let config = {
@@ -694,14 +709,14 @@ const init = () => {
         let hc = row[3] / 2;
         let pi = i - 1;
         while (0 < pi && hc < rows[pi][3]) {
-//        console.log("i:" + i + " hc:" + hc + " pi:" + pi + " pic:" + rows[pi][3]);
+          //console.log("i:" + i + " hc:" + hc + " pi:" + pi + " pic:" + rows[pi][3]);
           pi--;
         }
         prevValue = latestValue;
         latestValue = (0 < pi || rows[0][3] <= hc) ? (i - pi) : 0;
         config.data.datasets[0].data.push(latestValue);
 
-//      console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
+        console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
       } else if (i >= 1) {
         let prev = rows[i - 1];
         config.data.datasets[0].data.push(row[3] - prev[3]);
@@ -720,6 +735,8 @@ const init = () => {
 
     let ctx = $canvas.getContext('2d');
     window.myChart = new Chart(ctx, config);
+
+    console.log("fin. " + code);
   }
 
   //
@@ -1040,7 +1057,7 @@ const init = () => {
   const getPrefColor = (prefCode) => {
     let type = $("#select-pref-type").val();
     let ret = "rgba(90, 90, 90, 0.6)";
-    let value = gData["prefectures-data"][type][gData["prefectures-data"][type].length - 1][parseInt(prefCode) + 2];
+    let value = gData["prefectures-data"][type].values[gData["prefectures-data"][type].values.length - 1][parseInt(prefCode) - 1];
     if (value >= 1) {
       ret = COLORS.dark;
       if (gThresholds[type] === 0) ret = COLORS.default;
@@ -1049,12 +1066,19 @@ const init = () => {
     return ret;
   }
 
+  // "prefectures-map":[
+  //   {"code":1,"ja":"北海道","en":"Hokkaido","value":1081},
+  //   {"code":2,"ja":"青森県","en":"Aomori","value":27},
+  //   {"code":3,"ja":"岩手県","en":"Iwate","value":0},
+  //   ...
+  // ]
   const drawJapanMap = () => {
     $("#japan-map").empty();
     const WIDTH = $("#japan-map").width();
 
     let prefs = [];
     gData["prefectures-map"].forEach(function(pref, i){
+      console.log("pref.ja " + pref.ja);
       prefs.push({
         code: pref.code,
         jp: pref.ja,
@@ -1802,13 +1826,21 @@ const init = () => {
     $.getJSON("data/data.json", function(data) {
       gData = data;
       try {
+        console.log("1");
         updateThresholds();
+        console.log("2");
         drawTransitionBoxes();
+        console.log("3");
         drawDemographyChart();
+        console.log("4");
         drawJapanMap();
+        console.log("5");
         drawRegionChart("");
+        console.log("6");
         drawPrefectureCharts("13");
+        console.log("7");
         showUpdateDate();
+        console.log("8");
         $("#cover-block").fadeOut();
         $("#container").addClass("show");
 
