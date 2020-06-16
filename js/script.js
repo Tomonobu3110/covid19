@@ -53,11 +53,6 @@ const LABELS = {
       pcrtests: "件",
       reproduction: ""
     },
-    demography: {
-      deaths: "死亡",
-      serious: "重症",
-      misc: "軽症・無症状・確認中"
-    },
     age: [
       "80代以上",
       "70代",
@@ -94,11 +89,6 @@ const LABELS = {
       pcrtested: "",
       pcrtests: "",
       reproduction: ""
-    },
-    demography: {
-      deaths: "Deaths",
-      serious: "Serious",
-      misc: "Mild, No symptom, Checking"
     },
     age: [
       "80s+",
@@ -1150,6 +1140,7 @@ const init = () => {
     });
   }
 
+/*
   const drawDemographyChart = () => {
     $wrapper = $("#demography-chart").empty().html('<canvas></canvas>');
     $canvas = $wrapper.find("canvas")[0];
@@ -1254,6 +1245,92 @@ const init = () => {
       for (let i = 0; i < 3; i++) {
         config.data.datasets[i].data.push(age[i]);
       }
+    });
+
+    let ctx = $canvas.getContext('2d');
+    window.myChart = new Chart(ctx, config);
+  }
+*/
+
+const drawDemographyChart = () => {
+    $wrapper = $("#demography-chart").empty().html('<canvas></canvas>');
+    $canvas = $wrapper.find("canvas")[0];
+
+    let config = {
+      type: "horizontalBar",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "",
+          backgroundColor: COLORS.default,
+          borderWidth: 0.5,
+          borderColor: "#242a3c",
+          data: []
+        }]
+      },
+      options: {
+        aspectRatio: 0.9,
+        responsive: true,
+        legend: {
+          display: false
+        },
+        title: {
+          display: false
+        },
+        tooltips: {
+          xPadding: 24,
+          yPadding: 12,
+          displayColors: false,
+          callbacks: {
+            title: function(tooltipItem){
+              return tooltipItem[0].yLabel;
+            },
+            label: function(tooltipItem, data){
+              let suffix = {
+                ja: "名",
+                en: " cases"
+              };
+              return addCommas(tooltipItem.value) + suffix[LANG];
+            }
+          }
+        },
+        scales: {
+          xAxes: [{
+            stacked: true,
+            position: "top",
+            gridLines: {
+              color: "rgba(255,255,255,0.2)",
+              zeroLineColor: "rgba(255,255,255,0.2)",
+              borderDash: [3, 1]
+            },
+            ticks: {
+              suggestedMin: 0,
+              fontColor: "rgba(255,255,255,0.7)",
+              callback: function(value, index, values) {
+                return addCommas(value);
+              }
+            }
+          }],
+          yAxes: [{
+            stacked: true,
+            barPercentage: 0.7,
+            gridLines: {
+              color: "rgba(255,255,255,0.1)"
+            },
+            ticks: {
+              fontColor: "rgba(255,255,255,0.7)"
+            }
+          }]
+        }
+      }
+    };
+
+    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 1.1;
+    if ($wrapper.outerWidth() >= 600) config.options.aspectRatio = 1.3;
+
+    gData.demography.forEach(function(age, index){
+      config.data.labels.push(LABELS[LANG].age[index]);
+      config.data.datasets[0].data.push(age);
     });
 
     let ctx = $canvas.getContext('2d');
