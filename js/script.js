@@ -641,7 +641,7 @@ const init = () => {
     // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
     rows.forEach((row) => {
       row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
-      console.log(code + " len: " + row.length + " val: " + row[3]);
+      //console.log(code + " len: " + row.length + " val: " + row[3]);
     });
 
     let config = {
@@ -748,7 +748,7 @@ const init = () => {
         latestValue = (0 < pi || rows[0][3] <= hc) ? (i - pi) : 0;
         config.data.datasets[0].data.push(latestValue);
 
-        console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
+        //console.log(row[1] + "/" + row[2] + " doubling time:" + latestValue);
       } else if (i >= 1) {
         let prev = rows[i - 1];
         config.data.datasets[0].data.push(row[3] - prev[3]);
@@ -1140,119 +1140,7 @@ const init = () => {
     });
   }
 
-/*
   const drawDemographyChart = () => {
-    $wrapper = $("#demography-chart").empty().html('<canvas></canvas>');
-    $canvas = $wrapper.find("canvas")[0];
-
-    let config = {
-      type: "horizontalBar",
-      data: {
-        labels: [],
-        datasets: [{
-          label: LABELS[LANG].demography.deaths,
-          backgroundColor: COLORS.deaths,
-          borderWidth: 0.5,
-          borderColor: "#242a3c",
-          data: []
-        },{
-          label: LABELS[LANG].demography.serious,
-          backgroundColor: COLORS.serious,
-          borderWidth: 0.5,
-          borderColor: "#242a3c",
-          data: []
-        },{
-          label: LABELS[LANG].demography.misc,
-          backgroundColor: COLORS.default,
-          borderWidth: 0.5,
-          borderColor: "#242a3c",
-          data: []
-        }]
-      },
-      options: {
-        aspectRatio: 0.9,
-        responsive: true,
-        legend: {
-          display: true,
-          labels: {
-            fontColor: "rgba(255, 255, 255, 0.7)"
-          }
-        },
-        title: {
-          display: false
-        },
-        tooltips: {
-          xPadding: 24,
-          yPadding: 12,
-          displayColors: true,
-          callbacks: {
-            title: function(tooltipItem){
-              let suffix = {
-                ja: "名",
-                en: "cases"
-              };
-              let age = tooltipItem[0].yLabel;
-              let total = 0;
-              tooltipItem.forEach(function(item, i){
-                total += item.xLabel;
-              });
-
-              return age + ": " + total + " " + suffix[LANG];
-            },
-            label: function(tooltipItem, data){
-              let suffix = {
-                ja: "名",
-                en: " cases"
-              };
-              return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.value + suffix[LANG];
-            }
-          }
-        },
-        scales: {
-          xAxes: [{
-            stacked: true,
-            position: "top",
-            gridLines: {
-              color: "rgba(255,255,255,0.2)"
-            },
-            ticks: {
-              suggestedMin: 0,
-              fontColor: "rgba(255,255,255,0.7)",
-              callback: function(value, index, values) {
-                return addCommas(value);
-              }
-            }
-          }],
-          yAxes: [{
-            stacked: true,
-            barPercentage: 0.8,
-            gridLines: {
-              color: "rgba(255,255,255,0.1)"
-            },
-            ticks: {
-              fontColor: "rgba(255,255,255,0.7)"
-            }
-          }]
-        }
-      }
-    };
-
-    if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 1.1;
-    if ($wrapper.outerWidth() >= 600) config.options.aspectRatio = 1.3;
-
-    gData.demography.forEach(function(age, index){
-      config.data.labels.push(LABELS[LANG].age[index]);
-      for (let i = 0; i < 3; i++) {
-        config.data.datasets[i].data.push(age[i]);
-      }
-    });
-
-    let ctx = $canvas.getContext('2d');
-    window.myChart = new Chart(ctx, config);
-  }
-*/
-
-const drawDemographyChart = () => {
     $wrapper = $("#demography-chart").empty().html('<canvas></canvas>');
     $canvas = $wrapper.find("canvas")[0];
 
@@ -1322,8 +1210,8 @@ const drawDemographyChart = () => {
             }
           }]
         }
-      }
-    };
+      } // options: {
+    }; // let config = {
 
     if ($wrapper.outerWidth() >= 400) config.options.aspectRatio = 1.1;
     if ($wrapper.outerWidth() >= 600) config.options.aspectRatio = 1.3;
