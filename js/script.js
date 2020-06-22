@@ -158,12 +158,18 @@ const init = () => {
   }
 
   const drawLastDate = ($box, config) => {
+    const getDateWithMonthName = (dateString) => {
+      let dates = dateString.split("/");
+      let months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      return dates[1] + " " + months[parseInt(dates[0]) - 1];
+    }
+
     let $updated = $box.find("h5.updated");
     if (!$updated.hasClass("show")) {
       let lastDate = config.data.labels[config.data.labels.length - 1];
       let updatedDate = {
         ja: lastDate.replace("/", "月") + "日時点",
-        en: "As of " + lastDate
+        en: "As of " + getDateWithMonthName(lastDate)
       };
 
       $updated.text(updatedDate[LANG]);
@@ -271,11 +277,19 @@ const init = () => {
         ||  (prefCode === "" && code === "discharged" && ymd < 20200420)
         ||  (prefCode === "" && code === "pcrtested"  && ymd < 20200303)
       ) {
-        ret = COLORS.third;
+        ret = COLORS.second;
       }
 
       if (ymd >= 20200508) {
         ret = COLORS.second;
+      }
+
+      if (prefCode === "" && code === "pcrtested" && 20200617 <= ymd) {
+        ret = COLORS.default;
+      }
+
+      if (prefCode === "13" && code === "pcrtested" && 20200617 <= ymd) {
+        ret = COLORS.default;
       }
 
       if (prefCode === "" && code === "pcrtests") {
@@ -1841,6 +1855,7 @@ const init = () => {
 
   const showUpdateDate = () => {
     $(".updated-last").text(gData.updated.last[LANG]);
+    $(".updated-demography").text(gData.updated.demography[LANG]);
   }
 
   const loadData = () => {
