@@ -20,9 +20,8 @@ const LANG = $("html").attr("lang");
 const SCROLLBAR_WIDTH = window.innerWidth - $(window).width();
 const COLORS = {
   default: "#3DC",
-  second: "#6DF",
-  third: "#399",
-  deaths: "#EB8",
+  second: "#FEA",
+  deaths: "#FB8",
   serious: "#FEA",
   pcrtests: "#6F6587,#5987A5,#3BA9B0,#48C7A6,#86E18D,#D5F474".split(","),
   dark: "#399",
@@ -52,6 +51,10 @@ const LABELS = {
       pcrtested: "名",
       pcrtests: "件",
       reproduction: ""
+    },
+    demography: {
+      deaths: "死亡者",
+      misc: "陽性者"
     },
     age: [
       "80代以上",
@@ -89,6 +92,10 @@ const LABELS = {
       pcrtested: "",
       pcrtests: "",
       reproduction: ""
+    },
+    demography: {
+      deaths: "Deaths",
+      misc: "Misc."
     },
     age: [
       "80s+",
@@ -272,27 +279,43 @@ const init = () => {
       let ret = COLORS.default;
       let ymd = getDateValue(from, i, true);
 
-      if (  (prefCode === "" && code === "deaths"     && ymd < 20200413)
-        ||  (prefCode === "" && code === "carriers"   && ymd < 20200331)
-        ||  (prefCode === "" && code === "discharged" && ymd < 20200420)
-        ||  (prefCode === "" && code === "pcrtested"  && ymd < 20200303)
-      ) {
-        ret = COLORS.second;
+      if (prefCode === "") {
+        if (code === "carriers") {
+          if (ymd < 20200331) ret = COLORS.second;
+        } else {
+          if (ymd < 20200508) ret = COLORS.second;
+        }
+
+        if (code === "deaths") {
+          if (ymd < 20200413) ret = COLORS.default;
+        }
+
+        if (code === "discharged") {
+          if (ymd < 20200420) ret = COLORS.default;
+        }
+
+        if (code === "pcrtested") {
+          if (ymd < 20200617) ret = COLORS.second;
+          if (ymd < 20200303) ret = COLORS.second;
+        }
       }
 
-      if (ymd >= 20200508) {
-        ret = COLORS.second;
+      if (prefCode === "13") {
+        if (code === "pcrtested") {
+          if (ymd < 20200507) ret = COLORS.second;
+        }
       }
 
-      if (prefCode === "" && code === "pcrtested" && 20200617 <= ymd) {
-        ret = COLORS.default;
+      if (prefCode === "28") {
+        if (code === "pcrtested") {
+          if (ymd < 20200619) ret = COLORS.second;
+        }
       }
 
-      if ((prefCode === "13" && code === "pcrtested" && 20200617 <= ymd)
-      ||  (prefCode === "28" && code === "pcrtested" && 20200618 <= ymd)
-      ||  (prefCode === "22" && code === "pcrtested" && 20200621 <= ymd)
-        ) {
-        ret = COLORS.default;
+      if (prefCode === "22") {
+        if (code === "pcrtested") {
+          if (ymd < 20200622) ret = COLORS.second;
+        }
       }
 
       if (prefCode === "" && code === "pcrtests") {
@@ -421,13 +444,13 @@ const init = () => {
       let axisMaxLength = Math.max(axisMax.toString().length, axisMin.toString().length);
       let axisCoverWidth = 0;
       switch(axisMaxLength) {
-        case 1: axisCoverWidth = 22; break;
-        case 2: axisCoverWidth = 26; break;
-        case 3: axisCoverWidth = 34; break;
-        case 4: axisCoverWidth = 40; break;
-        case 5: axisCoverWidth = 52; break;
-        case 6: axisCoverWidth = 58; break;
-        case 7: axisCoverWidth = 64; break;
+        case 1: axisCoverWidth = 28; break;
+        case 2: axisCoverWidth = 32; break;
+        case 3: axisCoverWidth = 40; break;
+        case 4: axisCoverWidth = 46; break;
+        case 5: axisCoverWidth = 58; break;
+        case 6: axisCoverWidth = 64; break;
+        case 7: axisCoverWidth = 70; break;
       }
 
       $box.find(".axis-cover").width(axisCoverWidth.toString() + "px");
@@ -591,7 +614,7 @@ const init = () => {
         type: "line",
         label: LABELS[LANG].movingAverage,
         fill: false,
-        borderColor: "#EDA",
+        borderColor: "#FBA",
         borderWidth: 3,
         pointRadius: 0,
         data: []
@@ -681,7 +704,10 @@ const init = () => {
         aspectRatio: 1.6,
         responsive: true,
         legend: {
-          display: false
+          display: true,
+          labels: {
+            fontColor: "rgba(255, 255, 255, 0.7)"
+          }
         },
         title: {
           display: false
@@ -689,7 +715,7 @@ const init = () => {
         tooltips: {
           xPadding: 24,
           yPadding: 12,
-          displayColors: false,
+          displayColors: true,
           callbacks: {
             title: function(tooltipItem){
               let dateTime = tooltipItem[0].xLabel + " " + "12:00";
@@ -1166,7 +1192,13 @@ const init = () => {
       data: {
         labels: [],
         datasets: [{
-          label: "",
+          label: LABELS[LANG].demography.deaths,
+          backgroundColor: COLORS.deaths,
+          borderWidth: 0.5,
+          borderColor: "#242a3c",
+          data: []
+        },{
+          label: LABELS[LANG].demography.misc,
           backgroundColor: COLORS.default,
           borderWidth: 0.5,
           borderColor: "#242a3c",
@@ -1188,14 +1220,24 @@ const init = () => {
           displayColors: false,
           callbacks: {
             title: function(tooltipItem){
-              return tooltipItem[0].yLabel;
+              let suffix = {
+                ja: "名",
+                en: "cases"
+              };
+              let age = tooltipItem[0].yLabel;
+              let total = 0;
+              tooltipItem.forEach(function(item, i){
+                total += item.xLabel;
+              });
+
+              return age + ": " + total + " " + suffix[LANG];
             },
             label: function(tooltipItem, data){
               let suffix = {
                 ja: "名",
                 en: " cases"
               };
-              return addCommas(tooltipItem.value) + suffix[LANG];
+              return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.value + suffix[LANG];
             }
           }
         },
@@ -1235,7 +1277,9 @@ const init = () => {
 
     gData.demography.forEach(function(age, index){
       config.data.labels.push(LABELS[LANG].age[index]);
-      config.data.datasets[0].data.push(age);
+      for (let i = 0; i < 2; i++) {
+        config.data.datasets[i].data.push(age[i]);
+      }
     });
 
     let ctx = $canvas.getContext('2d');
