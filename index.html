@@ -722,7 +722,7 @@
       </div>
       <div id="footer-block">
         <p class="notes" id="footer-notes">武漢からの政府チャーター便帰国者、空港検疫、および神奈川県に停泊したクルーズ船の乗客・乗員は除く。長崎県に停泊したクルーズ船は全国の状況には含むが長崎県のデータには含まない。移動平均は後方7日移動平均値。5月8日以降は都道府県の発表ベース、それ以前は厚生労働省が把握した個票を積み上げたもの。データに更新がなかった場合は前日の数値を使用。基準変更によって前日との継続性がない日は新規増減を0と見なし、グラフの色を変えている。「検査陽性者」は原則として「入院治療等を要する者」「退院・療養解除」「死亡者」の合計と一致するが、確認中が含まれるため一致しない場合もある。厚生労働省が訂正を発表したケース、発表がなくても誤記を訂正したと思われるケースは遡及修正した。</p>
-        <p class="notes">データソース：都道府県別の数字も含めて原則として<a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000121431_00086.html" target="_blank">厚生労働省の報道発表資料</a>より。ただし東京都のみ<a href="https://stopcovid19.metro.tokyo.lg.jp/" target="_blank">東京都新型コロナウイルス感染症対策サイト</a>から遡及修正することがある。</p>
+        <p class="notes">データソース：都道府県別の数字も含めて原則として<a href="https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000121431_00086.html" target="_blank">厚生労働省の報道発表資料</a>より。ただし都道府県のデータは都道府県の発表から修正することがある。</p>
         <p class="notes">チャート描画：<a href="https://www.chartjs.org/" target="_blank">Chart.js</a>。マップ描画：<a href="https://github.com/takemaru-hirai/japan-map" target="_blank">Japan Map</a>。アイコン：<a href="https://material.io/resources/icons/" target="_blank">Material Design</a>。</p>
         <p class="notes">更新履歴・ソースコード：<a href="https://github.com/tomonobu3110/covid19/" target="_blank">GitHub (fork)</a> | <a href="https://github.com/kaz-ogiwara/covid19/" target="_blank">GitHub (original)</a> | <a href="https://github.com/kaz-ogiwara/covid19/tree/master/data" target="_blank">CSVデータのダウンロード</a></p>
         <div id="social-buttons">
@@ -737,7 +737,7 @@
           </section>
           <section>
             <h4>Q. 年齢別グラフの重症者がなくなっているのはなぜですか？</h4>
-            <p>A. 年齢別グラフの数字は全国版の数字（都道府県発表を厚生労働省が集計したもの）と異なり、厚生労働省での確認作業（突合作業）が完了したものがベースとなっています。そのため従来から死亡者・重症者数の把握に遅れが見られていました。従来は注記にこの旨を記載していましたが、都道府県発表の数字と混同されるケースが多かったため、現在は全国版と大きく変わりがない死亡者数のみ掲載し、重症者数は非表示としています。。</p>
+            <p>A. 年齢別グラフの数字は全国版の数字（都道府県発表を厚生労働省が集計したもの）と異なり、厚生労働省での確認作業（突合作業）が完了したものがベースとなっています。そのため従来から死亡者・重症者数の把握に遅れが見られていました。従来は注記にこの旨を記載していましたが、都道府県発表の数字と混同されるケースが多かったため、現在は全国版と大きく変わりがない死亡者数のみ掲載し、重症者数は非表示としています。</p>
           </section>
           <section>
             <h4>Q. 途中で大きく累計値が増減しているのはなぜですか？</h4>
@@ -794,6 +794,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="js/jquery.japan-map.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script.min.js"></script>
   </body>
 </html>
