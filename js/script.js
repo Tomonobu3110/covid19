@@ -1444,8 +1444,8 @@ const init = () => {
       dt.setDate(dt.getDate() + i);
 
       // sum up
-      value.forEach((v, i) => {
-        ttls[i] += v;
+      value.forEach((v, j) => {
+        ttls[j] += v;
       });
 
       // item for the day
