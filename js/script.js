@@ -1437,7 +1437,7 @@ const init = () => {
     let values = gData["prefectures-data"][typeCode].values;
 
     rows = [];
-    ttls = [];
+    ttls = Array(47).fill(0);
     values.forEach((value, i) => {
       // create date
       let dt = new Date(from[0], from[1] - 1, from[2]);
