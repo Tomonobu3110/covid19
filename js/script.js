@@ -695,14 +695,6 @@ const init = () => {
       rows.push(item);
     });
 
-    // "carriers":[[2020,2,17,38,8,""], [2020,2,18,44,9,""], ... (length = 6)
-    // "cases"   :[[2020,2,17,33],      [2020,2,18,40],      ... (length = 4)
-    // "deaths"  :[[2020,2,17,1,""],    [2020,2,18,1,""],    ... (length = 5)
-    // rows.forEach((row) => {
-    //   row[3] += (5 <= row.length ? (row[4] - 0) : 0) + (6 <= row.length ? (row[5] - 0) : 0);
-      //console.log(code + " len: " + row.length + " val: " + row[3]);
-    //});
-
     let config = {
       type: "line",
       data: {
@@ -1445,13 +1437,19 @@ const init = () => {
     let values = gData["prefectures-data"][typeCode].values;
 
     rows = [];
+    ttls = [];
     values.forEach((value, i) => {
       // create date
       let dt = new Date(from[0], from[1] - 1, from[2]);
       dt.setDate(dt.getDate() + i);
 
+      // sum up
+      value.forEach((v, i) => {
+        ttls[i] += v;
+      }
+
       // item for the day
-      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), value].flat();
+      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), ttls].flat();
       rows.push(item);
     });
 
