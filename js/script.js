@@ -1451,7 +1451,7 @@ const init = () => {
       // item for the day
       let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), ttls].flat();
       rows.push(item);
-      console.log(item);
+      //console.log(item);
     });
 
     let config = {
