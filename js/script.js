@@ -1446,7 +1446,7 @@ const init = () => {
       // sum up
       value.forEach((v, i) => {
         ttls[i] += v;
-      }
+      });
 
       // item for the day
       let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), ttls].flat();
