@@ -1445,12 +1445,13 @@ const init = () => {
 
       // sum up
       value.forEach((v, j) => {
-        ttls[j] += v;
+        ttls[j] = ttls[j] + v;
       });
 
       // item for the day
       let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), ttls].flat();
       rows.push(item);
+      console.log(item);
     });
 
     let config = {
