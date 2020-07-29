@@ -1447,10 +1447,12 @@ const init = () => {
     });
 
     // draw doubling charts
+/*
     $(".pref-doubling").each(function(){
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
     });
+*/
   }
 
   const drawPrefDoublingChart = (prefCode, typeCode) => {
