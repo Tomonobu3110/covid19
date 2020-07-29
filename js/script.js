@@ -1436,6 +1436,8 @@ const init = () => {
   }
 
   const drawPrefectureCharts = (prefCode) => {
+    console.log("6.1");
+
     $("#select-prefecture").val(prefCode);
 
     // draw transition charts
@@ -1446,6 +1448,8 @@ const init = () => {
       moveToRight($(this));
     });
 
+    console.log("6.2");
+
     // draw doubling charts
 /*
     $(".pref-doubling").each(function(){
@@ -1453,6 +1457,8 @@ const init = () => {
       drawPrefDoublingChart(prefCode, code);
     });
 */
+
+    console.log("6.3");
   }
 
   const drawPrefDoublingChart = (prefCode, typeCode) => {
