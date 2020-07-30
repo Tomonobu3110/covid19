@@ -1450,13 +1450,11 @@ const init = () => {
 
     console.log("6.2");
 
-/*
     // draw doubling charts
     $(".pref-doubling").each(function(){
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
     });
-*/
 
     console.log("6.3");
   }
@@ -1469,12 +1467,25 @@ const init = () => {
     let $canvas = $wrapper.find("canvas")[0];
 
     // data format convert
-    let from   = gData["prefectures-data"][typeCode].from;
-    let values = gData["prefectures-data"][typeCode].values;
+
+    // - find the earlyiest date (from)
+    let earlyest = new Date(2020, 12, 31);
+    gData["prefectuures-data"].forEach((pref, i) => {
+      let from = pref[typeCode].from;
+      let dt   = new Date(from[0], from[1] - 1, from[2]);
+      if (dt < earlyest) {
+        dt = earlyest;
+      }
+    });
+
+    console.log(typeCode + " / " + earlyest.getFullYear() + "/" + (earlyest.getMonth() + 1) + "/" + earlyest.getDate());
+
+    return; /////////////////////////////////////////////////////////////
 
     rows = [];
     ttls = Array(47).fill(0);
     values.forEach((value, i) => {
+
       // create date
       let dt = new Date(from[0], from[1] - 1, from[2]);
       dt.setDate(dt.getDate() + i);
@@ -1489,6 +1500,8 @@ const init = () => {
       rows.push(item);
       //console.log(item);
     });
+
+    return; /////////////////////////////////////////////////////////////
 
     let config = {
       type: "line",
@@ -2093,3 +2106,4 @@ const init = () => {
 $(function(){
   init();
 });
+
