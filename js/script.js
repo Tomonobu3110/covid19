@@ -1469,21 +1469,46 @@ const init = () => {
     // data format convert
 
     // - find the earlyiest date (from)
-    let earlyest = new Date(2020, 12, 31);
-    gData["prefectuures-data"].forEach((pref, i) => {
-      let from = pref[typeCode].from;
-      let dt   = new Date(from[0], from[1] - 1, from[2]);
-      if (dt < earlyest) {
-        dt = earlyest;
-      }
+    let dt_1st = new Date(2020, 12, 31);
+    let max_sz = 0;
+    gData["prefectures-data"].forEach((pref, i) => {
+      let from   = pref[typeCode].from;
+      let values = pref[typeCode].values;
+
+      // find earliest date (from)
+      let dt = new Date(from[0], from[1] - 1, from[2]);
+      dt_1st = (dt < dt_1st) ? dt : dt_1st;
+
+      // find max date size
+      max_sz = (max_sz < values.length) ? values.length : max_sz;
     });
 
-    console.log(typeCode + " / " + earlyest.getFullYear() + "/" + (earlyest.getMonth() + 1) + "/" + earlyest.getDate());
+    console.log(typeCode + "::" + dt_1st.getFullYear() + "/" + (dt_1st.getMonth() + 1) + "/" + dt_1st.getDate());
 
-    return; /////////////////////////////////////////////////////////////
+    let rows = [];
+    gData["prefectures-data"].forEach((pref, i) => {
+      let values = pref[typeCode].values;
+      let size = values.length;
 
-    rows = [];
-    ttls = Array(47).fill(0);
+      // date
+      let item = [dt_1st.getFullYear(), dt_1st.getMonth() + 1, dt_1st.getDate()];
+
+      // zero padding
+      for (let i = 0 ; i < max_sz - size; ++i) {
+        item.push(0);
+      }
+
+      // data sum up
+      let ttl = 0;
+      values.forEach((v) => {
+        ttl = ttl + v;
+        item.push(ttl);
+      });
+      rows.push(item);
+      console.log(item);
+    });
+
+/*
     values.forEach((value, i) => {
 
       // create date
@@ -1500,8 +1525,7 @@ const init = () => {
       rows.push(item);
       //console.log(item);
     });
-
-    return; /////////////////////////////////////////////////////////////
+*/
 
     let config = {
       type: "line",
