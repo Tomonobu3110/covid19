@@ -1488,13 +1488,12 @@ const init = () => {
     let rows = [];
     gData["prefectures-data"].forEach((pref, i) => {
       let values = pref[typeCode].values;
-      let size = values.length;
 
       // date
       let item = [dt_1st.getFullYear(), dt_1st.getMonth() + 1, dt_1st.getDate()];
 
       // zero padding
-      for (let i = 0 ; i < max_sz - size; ++i) {
+      for (let i = 0 ; i < max_sz - values.length; ++i) {
         item.push(0);
       }
 
@@ -2130,4 +2129,3 @@ const init = () => {
 $(function(){
   init();
 });
-
