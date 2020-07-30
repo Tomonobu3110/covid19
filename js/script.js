@@ -1450,11 +1450,13 @@ const init = () => {
 
     console.log("6.2");
 
+/*
     // draw doubling charts
     $(".pref-doubling").each(function(){
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
     });
+*/
 
     console.log("6.3");
   }
@@ -2129,3 +2131,4 @@ const init = () => {
 $(function(){
   init();
 });
+
