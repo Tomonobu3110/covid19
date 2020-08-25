@@ -1526,10 +1526,10 @@ const init = () => {
 
     // format convert
     let rows = [];
+    let dt = dt_1st;
     for (let i = 0; i < max_sz; ++i) {
       // create date
-      let dt = new Date();
-      dt.setDate(dt_1st.getDate() + i);
+      dt.setDate(dt.getDate() + 1);
       let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()];
 
       // pic the numbers from all prefectures
