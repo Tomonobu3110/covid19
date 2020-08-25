@@ -1466,13 +1466,11 @@ const init = () => {
 
     console.log("6.2");
 
-/*
     // draw doubling charts
     $(".pref-doubling").each(function(){
       let code = $(this).attr("code");
       drawPrefDoublingChart(prefCode, code);
     });
-*/
 
     console.log("6.3");
   }
@@ -1493,25 +1491,24 @@ const init = () => {
       let from   = pref[typeCode].from;
       let values = pref[typeCode].values;
 
-      // find earliest date (from)
-      let dt = new Date(from[0], from[1] - 1, from[2]);
-      dt_1st = (dt < dt_1st) ? dt : dt_1st;
-
-      // find max date size
-      max_sz = (max_sz < values.length) ? values.length : max_sz;
+      // find the prefecture (= max length)
+      if (max_sz < values.length) {
+        max_sz = values.length;
+        dt_1st = new Date(from[0], from[1] - 1, from[2]);
+      }
     });
 
     console.log(typeCode + "::" + dt_1st.getFullYear() + "/" + (dt_1st.getMonth() + 1) + "/" + dt_1st.getDate());
 
-    let rows = [];
-    gData["prefectures-data"].forEach((pref, i) => {
-      let values = pref[typeCode].values;
-
-      // date
-      let item = [dt_1st.getFullYear(), dt_1st.getMonth() + 1, dt_1st.getDate()];
+    // zero padding & sumup (normalize)
+    gData["prefectures-data"].forEach((pref) => {
+      let values  = pref[typeCode].values;
+      let padding = max_sz - values.length;
+      let items = [];
+      // let items = Array(max_sz).fill(0);
 
       // zero padding
-      for (let i = 0 ; i < max_sz - values.length; ++i) {
+      for (let i = 0 ; i < padding; ++i) {
         item.push(0);
       }
 
@@ -1521,28 +1518,29 @@ const init = () => {
         ttl = ttl + v;
         item.push(ttl);
       });
+
+      pref[typeCode].normalized = item;
+
+      console.log(pref[typeCode].normalized);
+    });
+
+    // format convert
+    let rows = [];
+    for (let i = 0; i < max_sz; ++i) {
+      // create date
+      let dt = new Date();
+      dt.setDate(dt_1st.getDate() + i);
+      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate()];
+
+      // pic the numbers from all prefectures
+      gData["prefectures-data"].forEach((pref) => {
+        let normalized = pref[typeCode].normalized;
+        item.push(normalized[i]);
+      }
+
       rows.push(item);
       console.log(item);
-    });
-
-/*
-    values.forEach((value, i) => {
-
-      // create date
-      let dt = new Date(from[0], from[1] - 1, from[2]);
-      dt.setDate(dt.getDate() + i);
-
-      // sum up
-      value.forEach((v, j) => {
-        ttls[j] = ttls[j] + v;
-      });
-
-      // item for the day
-      let item = [dt.getFullYear(), dt.getMonth() + 1, dt.getDate(), ttls].flat();
-      rows.push(item);
-      //console.log(item);
-    });
-*/
+    }
 
     let config = {
       type: "line",
@@ -2147,4 +2145,3 @@ const init = () => {
 $(function(){
   init();
 });
-
