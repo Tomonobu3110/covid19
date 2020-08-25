@@ -1515,7 +1515,7 @@ const init = () => {
       // data sum up
       let ttl = 0;
       values.forEach((v) => {
-        ttl = ttl + v;
+        ttl = ttl + (v - 0);
         item.push(ttl);
       });
 
