@@ -1504,8 +1504,8 @@ const init = () => {
     gData["prefectures-data"].forEach((pref) => {
       let values  = pref[typeCode].values;
       let padding = max_sz - values.length;
-      let items = [];
-      // let items = Array(max_sz).fill(0);
+      let item = [];
+      // let item = Array(max_sz).fill(0);
 
       // zero padding
       for (let i = 0 ; i < padding; ++i) {
