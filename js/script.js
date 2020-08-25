@@ -1536,7 +1536,7 @@ const init = () => {
       gData["prefectures-data"].forEach((pref) => {
         let normalized = pref[typeCode].normalized;
         item.push(normalized[i]);
-      }
+      });
 
       rows.push(item);
       console.log(item);
