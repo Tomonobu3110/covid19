@@ -54,7 +54,9 @@ const LABELS = {
     },
     demography: {
       deaths: "死亡者",
-      misc: "陽性者"
+      serious: "重症者",
+      hospitalized: "要治療",
+      discharged: "回復済"
     },
     age: [
       "80代以上",
@@ -95,7 +97,9 @@ const LABELS = {
     },
     demography: {
       deaths: "Deaths",
-      misc: "Misc."
+      serious: "Serious",
+      hospitalized: "Hospitalized",
+      discharged: "Discharged"
     },
     age: [
       "80s+",
@@ -730,6 +734,12 @@ const init = () => {
           pointBorderWidth: 1,
           pointBackgroundColor: "#242a3c",
           data: []
+        },{
+          label: LABELS[LANG].demography.discharged,
+          backgroundColor: COLORS.dark,
+          borderWidth: 0.5,
+          borderColor: "#242a3c",
+          data: []
         }]
       },
       options: {
@@ -1258,8 +1268,20 @@ const init = () => {
           borderColor: "#242a3c",
           data: []
         },{
-          label: LABELS[LANG].demography.misc,
+          label: LABELS[LANG].demography.serious,
+          backgroundColor: COLORS.serious,
+          borderWidth: 0.5,
+          borderColor: "#242a3c",
+          data: []
+        },{
+          label: LABELS[LANG].demography.hospitalized,
           backgroundColor: COLORS.default,
+          borderWidth: 0.5,
+          borderColor: "#242a3c",
+          data: []
+        },{
+          label: LABELS[LANG].demography.discharged,
+          backgroundColor: COLORS.dark,
           borderWidth: 0.5,
           borderColor: "#242a3c",
           data: []
@@ -1290,14 +1312,14 @@ const init = () => {
                 total += item.xLabel;
               });
 
-              return age + ": " + total + " " + suffix[LANG];
+              return age + ": " + addCommas(total) + " " + suffix[LANG];
             },
             label: function(tooltipItem, data){
               let suffix = {
                 ja: "名",
                 en: " cases"
               };
-              return data.datasets[tooltipItem.datasetIndex].label + ": " + tooltipItem.value + suffix[LANG];
+              return data.datasets[tooltipItem.datasetIndex].label + ": " + addCommas(tooltipItem.value) + suffix[LANG];
             }
           }
         },
@@ -1337,7 +1359,7 @@ const init = () => {
 
     gData.demography.forEach(function(age, index){
       config.data.labels.push(LABELS[LANG].age[index]);
-      for (let i = 0; i < 2; i++) {
+      for (let i = 0; i < Object.keys(LABELS[LANG].demography).length; i++) {
         config.data.datasets[i].data.push(age[i]);
       }
     });
